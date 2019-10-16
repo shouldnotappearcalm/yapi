@@ -17,6 +17,7 @@ class interfaceCol extends baseModel {
       up_time: Number,
       index: { type: Number, default: 0 },
       test_report: { type: String, default: '{}' },
+      unCheckedColCase: {type: Array, default: []},
       checkHttpCodeIs200: {
         type:Boolean,
         default: false
@@ -77,7 +78,7 @@ class interfaceCol extends baseModel {
       .find({
         project_id: project_id
       })
-      .select('name uid project_id parent_id desc add_time up_time, index')
+      .select('name uid project_id unCheckedColCase desc add_time up_time, index')
       .exec();
   }
 

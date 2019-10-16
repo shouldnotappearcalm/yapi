@@ -117,13 +117,15 @@ const compareVersions = require('compare-versions');
   }
 
   function handleSwagger(data) {
-
     let api = {};
     //处理基本信息
     api.method = data.method.toUpperCase();
     api.title = data.summary || data.path;
     api.desc = data.description;
     api.catname = data.tags && Array.isArray(data.tags) ? data.tags[0] : null;
+    if (data.deprecated) {
+      api.status = "deprecated";
+    }
 
     api.path = handlePath(data.path);
     api.req_params = [];

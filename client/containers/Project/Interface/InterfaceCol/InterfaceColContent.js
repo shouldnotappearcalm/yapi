@@ -102,6 +102,9 @@ class InterfaceColContent extends Component {
     this.records = {};
     this.state = {
       rows: [],
+      allRowsChecked: true,
+      allRowsIndeterminate: false,
+      unCheckedColCaseIdArray: [],
       reports: {},
       visible: false,
       curCaseid: null,
@@ -124,7 +127,7 @@ class InterfaceColContent extends Component {
           enable: false
         },
         checkResponseSchema: false,
-        checkScript:{
+        checkScript: {
           enable: false,
           content: ''
         }
@@ -147,8 +150,7 @@ class InterfaceColContent extends Component {
     //  console.log({"reports":JSON.parse(JSON.stringify(this.reports))});
       this.setState({
         commonSetting:{
-          ...this.state.commonSetting,
-          ...result.payload.data.colData
+          ...this.state.commonSetting
         }
       })
     }
@@ -166,6 +168,9 @@ class InterfaceColContent extends Component {
     const params = this.props.match.params;
     const { actionId } = params;
     this.currColId = currColId = +actionId || result.payload.data.data[0]._id;
+
+    let curColObj = this.getColObjByKey(result.payload.data.data, currColId);
+    this.setState({ unCheckedColCaseIdArray: curColObj.unCheckedColCase});
     this.props.history.push('/project/' + params.id + '/interface/col/' + currColId);
     if (currColId && currColId != 0) {
       await this.handleColIdChange(currColId)
@@ -215,21 +220,35 @@ class InterfaceColContent extends Component {
     return req_header;
   };
 
+  // 根据 colKey 获取 col 对象
+  getColObjByKey = (colArray, colKey) => {
+    for (let i = 0; i < colArray.length; i++) {
+      if (colArray[i].key === colKey) {
+        return colArray[i];
+      }
+    }
+  }
+
   handleColdata = (rows, currColEnvObj = {}) => {
   //  console.log({'rows':JSON.parse(JSON.stringify(rows))});
     let that = this;
+    let unCheckedColCaseIdArray = this.state.unCheckedColCaseIdArray;
     let newRows = produce(rows, draftRows => {
       draftRows.map(item => {
         item.id = item._id;
         item._test_status = item.test_status;
-        if(currColEnvObj[item.project_id]){
-          item.case_env =currColEnvObj[item.project_id];
+        if (currColEnvObj[item.project_id]){
+          item.case_env = currColEnvObj[item.project_id];
         }
         item.req_headers = that.handleReqHeader(item.project_id, item.req_headers, item.case_env);
+        //赋值isRun
+        item.isRun = unCheckedColCaseIdArray.indexOf(item.id) == -1 ? true : false;
         return item;
       });
     });
     this.setState({ rows: newRows });
+    //更改是否选中header的状态 
+    this.changeGlobalCheckboxStatus(newRows);
   };
 
 
@@ -300,6 +319,10 @@ class InterfaceColContent extends Component {
   executeTests = async () => {
     for (let i = 0, l = this.state.rows.length, newRows, curitem; i < l; i++) {
       let { rows } = this.state;
+
+      if (rows[i].isRun == false) {
+        continue;
+      }
 
       let envItem = _.find(this.props.envList, item => {
         return item._id === rows[i].project_id;
@@ -530,6 +553,8 @@ class InterfaceColContent extends Component {
             descendants:false
           }
         );
+      let curColObj = this.getColObjByKey(nextProps.interfaceColList, newColId);
+      this.setState({ unCheckedColCaseIdArray: curColObj.unCheckedColCase});
       this.handleColIdChange(newColId)
     }
   }
@@ -705,6 +730,85 @@ class InterfaceColContent extends Component {
     }
   }
 
+  changeCheck = (_index, e) => {
+    let newRows = [].concat([], this.state.rows);
+    let curitem = Object.assign({}, newRows[_index], { isRun: e.target.checked });
+    newRows[_index] = curitem;
+    this.setState({
+      rows: newRows
+    });
+
+    //更改是否选中header的状态 
+    this.changeGlobalCheckboxStatus(newRows);
+  }
+
+  changeGlobalCheckboxStatus = (newRows) => {
+    //更改是否选中header的状态 
+    let noCheckedLength = 0;
+    for (let i = 0, len = newRows.length; i < len; i++) {
+      let item = newRows[i];
+      if (item.isRun == false) {
+        noCheckedLength++;
+      }
+    }
+    if (noCheckedLength == 0) {
+      this.setState({
+        allRowsChecked: true
+      });
+    } else {
+      this.setState({
+        allRowsChecked: false
+      });
+    }
+
+    if (noCheckedLength == newRows.length || noCheckedLength == 0) {
+      this.setState({
+        allRowsIndeterminate: false
+      });
+    } else {
+      this.setState({
+        allRowsIndeterminate: true
+      });
+    }
+  }
+
+  changeAllCheck = (e) => {
+    let newRows = [].concat([], this.state.rows);
+    this.state.rows.forEach((item, _index) => {
+      let curitem = Object.assign({}, item, { isRun: e.target.checked });
+      newRows[_index] = curitem;
+    });
+
+    this.setState({
+      allRowsChecked: e.target.checked,
+      rows: newRows,
+      allRowsIndeterminate: false
+    });
+  }
+
+  //保存未选中的测试用例
+  saveUncheckedColCase = () => {
+    let unCheckedColCaseIdArray = [];
+    this.state.rows.forEach(item => {
+      if (item.isRun == false) {
+        unCheckedColCaseIdArray.push(item._id);
+      }
+    });
+    let params = {
+      col_id: this.props.currColId,
+      unCheckedColCase: unCheckedColCaseIdArray
+    };
+
+    axios.post('/api/col/up_col', params).then(async res => {
+      if (res.data.errcode) {
+        return message.error(res.data.errmsg);
+      }
+      let project_id = this.props.match.params.id;
+      await this.props.fetchInterfaceColList(project_id);
+      message.success('接口集合运行列表更新成功');
+    });
+  }
+
   onChangeCheckbox = async e => {
     await this.flushdescendants(e.target.checked,  e.target.allChilds)
   };
@@ -760,6 +864,30 @@ class InterfaceColContent extends Component {
           ]
         }
       },
+      //add
+      {
+        header: {
+          formatters: [
+            () => {
+              return (
+                <span><Checkbox checked={this.state.allRowsChecked} indeterminate={this.state.allRowsIndeterminate} onChange={this.changeAllCheck} />&nbsp;是否运行</span>
+              );
+            }
+          ]
+        },
+        property: 'selected',
+        cell: {
+          formatters: [
+            (text, { rowData }) => {
+              let record = rowData;
+              return (
+                <Checkbox checked={record.isRun == null ? true : record.isRun} onChange={this.changeCheck.bind(this, record._index)} />
+              );
+            }
+          ]
+        }
+      },
+      // add end
       {
         header: {
           label: 'key',
@@ -817,6 +945,21 @@ class InterfaceColContent extends Component {
             (value, { rowData }) => {
               let id = rowData._id;
               let code = this.reports[id] ? this.reports[id].code : 0;
+              if (rowData.isRun != null && rowData.isRun == false) {
+                return (
+                  <div>
+                    <Tooltip title="Pass">
+                      <Icon
+                        style={{
+                          color: 'grey'
+                        }}
+                        type="minus-circle"
+                      />
+                    </Tooltip>
+                  </div>
+                );
+              }
+
               if (rowData.test_status === 'loading') {
                 return (
                   <div>
@@ -1149,7 +1292,10 @@ class InterfaceColContent extends Component {
         </Row>
 
         <div className="component-label-wrapper">
-          <Label onChange={val => this.handleChangeInterfaceCol(val, col_name)} desc={col_desc} />
+          <div style={{display:"inline-block"}}><Label onChange={val => this.handleChangeInterfaceCol(val, col_name)} desc={col_desc} /></div>
+          <Button type="primary" onClick={this.saveUncheckedColCase}>
+            保存勾选记录
+          </Button>
         </div>
 
         <Table.Provider

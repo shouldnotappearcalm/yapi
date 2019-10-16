@@ -1,6 +1,5 @@
 const yapi = require('yapi.js');
 const baseModel = require('models/base.js');
-const  mongoose = require('mongoose');
 
 class syncModel extends baseModel {
   getName() {
@@ -24,7 +23,7 @@ class syncModel extends baseModel {
       //上次同步的swagger 文档内容
       old_swagger_content: String,
       add_time: Number,
-      up_time: Number,
+      up_time: Number
     };
   }
 
