@@ -458,7 +458,7 @@ class groupController extends baseController {
    * @example ./api/group/del.json
    */
   async del(ctx) {
-    if (this.getRole() !== 'admin') {
+    if ((await this.checkAuth(ctx.params.id, 'group', 'danger')) !== true) {
       return (ctx.body = yapi.commons.resReturn(null, 401, '没有权限'));
     }
 
@@ -480,6 +480,26 @@ class groupController extends baseController {
     }
 
     let result = await groupInst.del(id);
+
+    // 写入分组、项目删除日志
+    let uid = this.getUid();
+    let username = this.getUsername();
+    projectList.forEach(async p => {
+      yapi.commons.saveLog({
+        content: '项目在分组删除时被级联删除',
+        type: 'project',
+        uid: uid,
+        username: username,
+        typeid: p._id
+      });
+    });
+    yapi.commons.saveLog({
+      content: '分组被删除',
+      type: 'group',
+      uid: uid,
+      username: username,
+      typeid: id
+    });
     ctx.body = yapi.commons.resReturn(result);
   }
 

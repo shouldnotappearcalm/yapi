@@ -269,12 +269,12 @@ class GroupSetting extends Component {
         <Row type="flex" justify="center" className="row save">
           <Col span={4} className="save-button">
             <Button className="m-btn btn-save" icon="save" type="primary" onClick={this.editGroup}>
-              保 存
+              保 存 
             </Button>
           </Col>
         </Row>
         {/* 只有超级管理员能删除分组 */}
-        {this.props.curUserRole === 'admin' ? (
+        {this.props.currGroup.role === 'admin' || this.props.currGroup.role === 'owner' ? (
           <Row type="flex" justify="center" className="danger-container">
             <Col span={24} className="title">
               <h2 className="content">

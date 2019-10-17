@@ -307,7 +307,6 @@ class baseController {
    */
   async checkAuth(id, type, action) {
     let role = await this.getProjectRole(id, type);
-
     if (action === 'danger') {
       if (role === 'admin' || role === 'owner') {
         return true;
@@ -323,6 +322,7 @@ class baseController {
     }
     return false;
   }
+
 }
 
 module.exports = baseController;
