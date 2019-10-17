@@ -1219,7 +1219,7 @@ class InterfaceEditForm extends Component {
                         <span
                           className="href"
                           onClick={() =>
-                            window.open('https://yapi.ymfe.org/documents/mock.html', '_blank')
+                            window.open('https://hellosean1025.github.io/yapidocuments/mock.html', '_blank')
                           }
                         >
                           查看文档
