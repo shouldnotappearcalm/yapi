@@ -1,14 +1,23 @@
 ### <font color=RED size=24 face="黑体">  crazy-yapi</font>分支补充功能说明：
 
 #### TO DO
--
-- 调研：支持文件上传类接口测试（计划采用二进制方式支持文件上传）
-- 优化tree加载为异步
-- 增强：增加jmeter driver服务，支持性能压测
-- 精度bug修复 ：js 数字最大16位
-- 公共参数备注链接
-- 用例执行统计报表
-- 接口统计报表
+
+- [ ] 调研：支持文件上传类接口测试（计划采用二进制方式支持文件上传）
+- [ ] 优化tree加载为异步
+- [ ] 增强：增加jmeter driver服务，支持性能压测
+- [ ] 精度bug修复 ：js 数字最大16位
+- [ ] 公共参数备注链接
+- [ ] 用例执行统计报表
+- [ ] 接口统计报表
+
+
+### 2019/10/17
+
+* 优化： 鼠标选中搜索结果，会展示完整的数据。
+* 修复： 菜单树诸多问题 [#27](https://github.com/xian-crazy/yapi/issues/27) [#10](https://github.com/xian-crazy/yapi/issues/10)
+* 优化： 接口列表箭头可点击 [#11](https://github.com/xian-crazy/yapi/issues/11)
+* 新增： 高级参数设置-常量 添加安全常量输入， 解决转换失败的问题 [#28](https://github.com/xian-crazy/yapi/issues/28)
+* 优化： 接口请求时控制台展示 [#5](https://github.com/xian-crazy/yapi/issues/5)
 
 ### 2019/8/16
 
@@ -174,6 +183,12 @@
 
 ### crazy-yapi 分支 作者
 * crazy  330126160@qq.com
+* BetaGo  gouwantong@live.com
+
+### crazy-yapi 分支 License
+
+Copyright © 2019, [小影](http://quvideo.com/).
+Released under the [Apache License 2.0](LICENSE).
 
 
 <font color=RED size=24 face="黑体"> ---------------------以下内容为官方主分支说明文档------------------------------</font>
