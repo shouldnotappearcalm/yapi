@@ -13,8 +13,9 @@ const json5 = require('json5');
 const _ = require('underscore');
 const Ajv = require('ajv');
 const Mock = require('mockjs');
-
-
+const utils = require('../../common/power-string.js').utils;
+const CryptoJS = require('crypto-js');
+const jsrsasign = require('jsrsasign');
 
 const ejs = require('easy-json-schema');
 
@@ -373,6 +374,11 @@ exports.translateDataToTree=(data,mynodeid)=> {
   });
   let parents = JSON.parse(JSON.stringify(data.filter(value => (typeof value.parent_id) == 'undefined' || value.parent_id == -1)));
   let children = JSON.parse(JSON.stringify(data.filter(value => (typeof value.parent_id) !== 'undefined' && value.parent_id != -1)));
+  if (mynode.id && mynode.id == -1) {
+    parents = JSON.parse(JSON.stringify(data.filter(value => value._id == -1)));
+    children = JSON.parse(JSON.stringify(data.filter(value => (typeof value.parent_id) !== 'undefined' || value._id != -1)));
+  }
+  
     let translator = (parents, children,mynode) => {
     parents.forEach((parent) => {
       parent.parent_id=(typeof parent.parent_id) == 'undefined'?-1: parent.parent_id;
@@ -443,6 +449,10 @@ exports.translateDataToTree=(data,mynodeid)=> {
       result[i].caseList = caseList;
     }
   }
+  if (mycatid == -1) {
+    result.push({_id: -1});
+  }
+
   result = islist ? result :  this.translateDataToTree(result,mycatid);
   return result;
 }
@@ -627,7 +637,20 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
     header: params.response.header,
     records: params.records,
     params: params.params,
-    utils:params.utils,
+    utils: Object.freeze({
+      _: _,
+      CryptoJS: CryptoJS,
+      jsrsasign: jsrsasign,
+      base64: utils.base64,
+      md5: utils.md5,
+      sha1: utils.sha1,
+      sha224: utils.sha224,
+      sha256: utils.sha256,
+      sha384: utils.sha384,
+      sha512: utils.sha512,
+      unbase64: utils.unbase64,
+      axios: axios
+    }),
     storage:params.storage,
     log: msg => {
       logs.push('log: ' + convertString(msg));
@@ -681,6 +704,7 @@ ${JSON.stringify(schema,null,2)}`)
       result = yapi.commons.sandbox(context, script);
     }
     result.logs = logs;
+    delete result.utils
     return yapi.commons.resReturn(result);
   } catch (err) {
     //logs.push(convertString(err));

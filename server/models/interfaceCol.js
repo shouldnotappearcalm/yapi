@@ -78,7 +78,7 @@ class interfaceCol extends baseModel {
       .find({
         project_id: project_id
       })
-      .select('name uid project_id unCheckedColCase desc add_time up_time, index')
+      .select('name uid project_id ColCase parent_id desc add_time up_time index unCheckedColCase')
       .exec();
   }
 

@@ -5,7 +5,7 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import {findMeInTree} from '../../../../common.js';
 //import constants from '../../../../constants/variable.js'
-import {Tooltip, Icon, Input, Button, Row, Col, Spin, Modal, message, Select, Switch, Checkbox} from 'antd';
+import {Tooltip, Icon, Input, Button, Row, Col, Spin, Modal, message, Select, Switch, Checkbox, InputNumber} from 'antd';
 import {
   fetchInterfaceColList,
   fetchCaseList,
@@ -116,9 +116,12 @@ class InterfaceColContent extends Component {
       email: false,
       download: false,
       descendants:false,
+      uncheckedCase: false,
       currColEnvObj: {},
       collapseKey: '1',
       commonSettingModalVisible: false,
+      repeatedExecuteModalVisible: false,
+      repeatedRunTimes: 1,
       commonSetting: {
         checkHttpCodeIs200: false,
         checkResponseField: {
@@ -170,7 +173,7 @@ class InterfaceColContent extends Component {
     this.currColId = currColId = +actionId || result.payload.data.data[0]._id;
 
     let curColObj = this.getColObjByKey(result.payload.data.data, currColId);
-    this.setState({ unCheckedColCaseIdArray: curColObj.unCheckedColCase});
+    this.setState({ unCheckedColCaseIdArray: curColObj.unCheckedColCase ? curColObj.unCheckedColCase : []});
     this.props.history.push('/project/' + params.id + '/interface/col/' + currColId);
     if (currColId && currColId != 0) {
       await this.handleColIdChange(currColId)
@@ -225,6 +228,13 @@ class InterfaceColContent extends Component {
     for (let i = 0; i < colArray.length; i++) {
       if (colArray[i].key === colKey) {
         return colArray[i];
+      }
+
+      if (colArray[i].children && colArray[i].children.length > 0) {
+        let result = this.getColObjByKey(colArray[i].children, colKey);
+        if (result) {
+          return result;
+        }
       }
     }
   }
@@ -314,6 +324,31 @@ class InterfaceColContent extends Component {
       test_report: JSON.stringify(this.reports)
     });
   };
+
+  openRepeatedExecuteModal = () => {
+    this.setState({
+      repeatedExecuteModalVisible: true
+    })
+  }
+
+  cancelRepeatedExecute = () => {
+    this.setState({
+      repeatedExecuteModalVisible: false
+    })
+  }
+
+  handleRepeatedExecute = async () => {
+    this.setState({
+      repeatedExecuteModalVisible: false
+    });
+    for (let i = 0; i < this.state.repeatedRunTimes; i++) {
+      await this.executeTests();
+    }
+  }
+
+  changeRepeatedTimes = (times) => {
+    this.setState({ repeatedRunTimes: times });
+  }
 
 
   executeTests = async () => {
@@ -554,7 +589,7 @@ class InterfaceColContent extends Component {
           }
         );
       let curColObj = this.getColObjByKey(nextProps.interfaceColList, newColId);
-      this.setState({ unCheckedColCaseIdArray: curColObj.unCheckedColCase});
+      this.setState({ unCheckedColCaseIdArray: curColObj.unCheckedColCase? curColObj.unCheckedColCase : []});
       this.handleColIdChange(newColId)
     }
   }
@@ -644,7 +679,8 @@ class InterfaceColContent extends Component {
       autoVisible: false,
       email: false,
       download: false,
-      descendants:false,
+      //descendants:false,
+      uncheckedCase: false,
       mode: 'html',
       currColEnvObj: {},
       collapseKey: ''
@@ -787,7 +823,7 @@ class InterfaceColContent extends Component {
   }
 
   //保存未选中的测试用例
-  saveUncheckedColCase = () => {
+  saveUnCheckedColCase = () => {
     let unCheckedColCaseIdArray = [];
     this.state.rows.forEach(item => {
       if (item.isRun == false) {
@@ -819,6 +855,12 @@ class InterfaceColContent extends Component {
     await this.flushdescendants(descendants, e.target.dataset.allchilds+'');
   };
 
+  uncheckedCase = async(unchecked) => {
+    this.setState({
+      uncheckedCase: unchecked
+    })
+  }
+
   flushdescendants = async (descendants,allChilds) => {
     let childscol = this.props.currColId;
     this.setState({
@@ -828,7 +870,11 @@ class InterfaceColContent extends Component {
     if (descendants) {
       childscol = allChilds;
     }
+    if (descendants)
+      console.log("pre id:" + childscol);
     await this.props.fetchCaseList(childscol);
+    if (descendants)
+      console.log("after id:" + childscol);
     await this.props.fetchCaseEnvList(childscol);
     this.changeCollapseClose();
     this.handleColdata(this.props.currCaseList);
@@ -1092,7 +1138,7 @@ class InterfaceColContent extends Component {
       this.props.token
     }${currColEnvObj ? currColEnvObj : ''}&mode=${this.state.mode}&email=${
       this.state.email
-    }&download=${this.state.download}&descendants=${this.state.descendants}`;
+    }&download=${this.state.download}&descendants=${this.state.descendants}&runCheckedCase=${this.state.uncheckedCase}`;
 
     let col_name = '';
     let col_desc = '';
@@ -1108,6 +1154,23 @@ class InterfaceColContent extends Component {
     return (
       <div className="interface-col">
         <Modal
+          title="配置运行次数"
+          visible={this.state.repeatedExecuteModalVisible}
+          onOk={this.handleRepeatedExecute}
+          onCancel={this.cancelRepeatedExecute}
+          width={'500px'}
+          style={{top:150}}
+        >
+          <div>
+            <Row>
+              <Col span={20}>
+                <span style={{fontSize: '15px'}}>重复运行次数：</span>&nbsp;
+                <InputNumber precision={0} autoFocus={true} defaultValue={1} onChange={this.changeRepeatedTimes} min={0} max={500}  />
+              </Col>
+            </Row>
+          </div>
+        </Modal>
+        <Modal
             title="通用规则配置"
             visible={this.state.commonSettingModalVisible}
             onOk={this.handleCommonSetting}
@@ -1122,7 +1185,7 @@ class InterfaceColContent extends Component {
                   <Icon type="question-circle-o" style={{ width: '10px' }} />
                 </Tooltip></label>
               </Col>
-              <Col className="col-item"  span={18}>
+              <Col className="col-item" span={18}>
                 <Switch onChange={e=>{
                   let {commonSetting} = this.state;
                   this.setState({
@@ -1282,21 +1345,28 @@ class InterfaceColContent extends Component {
                 <Button onClick={this.openCommonSetting} style={{
                         marginRight: '8px'
                       }} >通用规则配置</Button>
-                &nbsp;
+                <Button style={{marginRight:'8px'}} onClick={this.openRepeatedExecuteModal}>
+                  测试N次
+                </Button>
                 <Button type="primary" onClick={this.executeTests}>
                   开始测试
                 </Button>
+                
               </div>
             )}
           </Col>
         </Row>
-
-        <div className="component-label-wrapper">
-          <div style={{display:"inline-block"}}><Label onChange={val => this.handleChangeInterfaceCol(val, col_name)} desc={col_desc} /></div>
-          <Button type="primary" onClick={this.saveUncheckedColCase}>
-            保存勾选记录
-          </Button>
-        </div>
+        <Row>
+          <Col span={10}>
+            <div className="component-label-wrapper">
+              <div style={{display:"inline-block",marginTop:'40px'}}><Label onChange={val => this.handleChangeInterfaceCol(val, col_name)} desc={col_desc} /></div>
+              <Button type="primary" onClick={this.saveUnCheckedColCase}>
+                保存勾选记录
+              </Button>
+            </div>
+          </Col>
+        </Row>
+        
 
         <Table.Provider
           components={components}
@@ -1437,6 +1507,28 @@ class InterfaceColContent extends Component {
                   unCheckedChildren="关"
                   onChange={this.descendants}
                 />
+              </Col>
+            </Row>
+            <Row type="flex" justify="start" className="row" align="middle">
+              <Col span={3} >
+                  只运行勾选中的用例
+                <Tooltip title={'开启后，将不执行取消勾选的测试用例'}>
+                  <Icon
+                    type="question-circle-o"
+                    style={{
+                      width: '10px'
+                    }}
+                  />
+                </Tooltip>
+                  &nbsp;：
+              </Col>
+              <Col span={3}>
+                <Switch
+                    checked={this.state.uncheckedCase}
+                    checkedChildren="开"
+                    unCheckedChildren="关"
+                    onChange={this.uncheckedCase}
+                  />
               </Col>
             </Row>
             <Row type="flex" justify="space-around" className="row" align="middle">

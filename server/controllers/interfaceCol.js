@@ -5,6 +5,7 @@ const projectModel = require('../models/project.js');
 const baseController = require('./base.js');
 const yapi = require('../yapi.js');
 const _ = require('underscore');
+const boundaryUtils = require('../utils/boundary.js')
 
 class interfaceColController extends baseController {
   constructor(ctx) {
@@ -467,6 +468,149 @@ class interfaceColController extends baseController {
       ctx.body = yapi.commons.resReturn('ok');
     } catch (e) {
       ctx.body = yapi.commons.resReturn(null, 402, e.message);
+    }
+  }
+
+  /**
+   * 批量导入边界测试用例给测试集合
+   * @param {*} ctx 请求上下文
+   */
+  async addBoundaryCaseList(ctx) {
+    try {
+      let params = ctx.request.body;
+      params = yapi.commons.handleParams(params, {
+        project_id: 'number',
+        col_id: 'number'
+      });
+      if (!params.interface_list || !Array.isArray(params.interface_list)) {
+        return (ctx.body = yapi.commons.resReturn(null, 400, 'interface_list 参数有误'));
+      }
+
+      if (!params.project_id) {
+        return (ctx.body = yapi.commons.resReturn(null, 400, '项目id不能为空'));
+      }
+
+      let auth = await this.checkAuth(params.project_id, 'project', 'edit');
+      if (!auth) {
+        return (ctx.body = yapi.commons.resReturn(null, 400, '没有权限'));
+      }
+
+      if (!params.col_id) {
+        return (ctx.body = yapi.commons.resReturn(null, 400, '接口集id不能为空'));
+      }
+
+      let data = {
+        uid: this.getUid(),
+        index: 0,
+        add_time: yapi.commons.time(),
+        up_time: yapi.commons.time(),
+        project_id: params.project_id,
+        col_id: params.col_id
+      };
+
+      for (let i = 0; i < params.interface_list.length; i++) {
+        let interfaceData = await this.interfaceModel.get(params.interface_list[i]);
+        data.interface_id = params.interface_list[i];
+        data.casename = interfaceData.title;
+
+        let bodyArray = [];
+
+        // 处理json schema 解析
+        if (
+          interfaceData.req_body_type === 'json' &&
+          interfaceData.req_body_other &&
+          interfaceData.req_body_is_json_schema
+        ) {
+          // 生成各种边界 schema
+          let schemaArray = [];
+          // 生成 超长 string 的 schema
+          let maxJson = {
+            name: data.casename + '-max',
+            data: yapi.commons.json_parse(interfaceData.req_body_other)
+          };
+          boundaryUtils.generateErrorMaxString(maxJson.data);
+          schemaArray.push(maxJson);
+
+          // 生成 短 string 的 schema
+          let minStringJson = {
+            name: data.casename + '-min',
+            data: yapi.commons.json_parse(interfaceData.req_body_other)
+          };
+          boundaryUtils.generateErrorMinString(minStringJson.data);
+          schemaArray.push(minStringJson);
+
+          // 根据 schema 生成数据
+          for (let i = 0; i < schemaArray.length; i++) {
+            bodyArray.push({
+              name: schemaArray[i].name,
+              data: JSON.stringify(yapi.commons.schemaToJson(schemaArray[i].data, {
+                alwaysFakeOptionals: true
+              }))
+            })
+          }
+          // 生成 null 类型的测试用例
+          let nullObj = {
+            name: data.casename + '-null',
+            data: JSON.parse(bodyArray[0].data)
+          };
+          boundaryUtils.generateErrorNull(nullObj.data);
+          nullObj.data = JSON.stringify(nullObj.data);
+          bodyArray.push(nullObj);
+
+          console.log(bodyArray);
+        } else {
+          bodyArray.push({
+            name: data.casename,
+            data: interfaceData.req_body_other
+          })
+        }
+
+        data.req_body_type = interfaceData.req_body_type;
+
+        for (let i = 0; i < bodyArray.length; i++) {
+          data.casename = bodyArray[i].name;
+          data.req_body_other = bodyArray[i].data;
+
+          let caseResultData = await this.caseModel.save(data);
+          let username = this.getUsername();
+          this.colModel.get(params.col_id).then(col => {
+            yapi.commons.saveLog({
+              content: `<a href="/user/profile/${this.getUid()}">${username}</a> 在接口集 <a href="/project/${
+                params.project_id
+              }/interface/col/${params.col_id}">${col.name}</a> 下导入了测试用例 <a href="/project/${
+                params.project_id
+              }/interface/case/${caseResultData._id}">${data.casename}</a>`,
+              type: 'project',
+              uid: this.getUid(),
+              username: username,
+              typeid: params.project_id
+            });
+          });
+        }
+        
+      }
+
+      this.projectModel.up(params.project_id, { up_time: new Date().getTime() }).then();
+
+      ctx.body = yapi.commons.resReturn('ok');
+    } catch (e) {
+      ctx.body = yapi.commons.resReturn(null, 402, e.message);
+    }
+  }
+
+  handleJsonString = (obj) => {
+    if (obj && obj.type && obj.type === 'object') {
+        this.handleJsonString(obj.properties);
+    } else { 
+        for (let prop in obj) {
+            if (obj[prop].type === 'string') {
+                obj[prop].minLength = 300;
+                obj[prop].maxLength = 600;
+            }
+            if (obj[prop].type === 'object') {
+                this.handleJsonString(obj[prop].properties);
+            }
+        }
     }
   }
 

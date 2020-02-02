@@ -192,7 +192,7 @@ class openController extends baseController {
     let colids=[];
     colids.push(colData2._id);
    // console.log({ctx,projectId,'ctx.params':ctx.params});
-    if(ctx.params.descendants|| ctx.params.descendants==='true') {
+    if((ctx.params.descendants && ctx.params.descendants == 'true') || rootid == -1) {
       colids = colids.concat(colData2.descendants);
     }
    // console.log({colids});
@@ -203,14 +203,28 @@ class openController extends baseController {
 //--------------
     for(let c=0;c<colids.length;c++){
       let id=colids[c];
+
+
+      if (id == -1) {
+        continue;
+      }
+
       let caseList = await yapi.commons.getCaseList(id);
       if (caseList.errcode !== 0) {
         ctx.body = caseList;
       }
+
+      let unCheckedCaseArray = (ctx.params.runCheckedCase && ctx.params.runCheckedCase == 'true') && caseList.colData.unCheckedColCase ? caseList.colData.unCheckedColCase : [];
+      let unCheckedCaseSet = new Set(unCheckedCaseArray);
       caseList = caseList.data;
       for (let i = 0, l = caseList.length; i < l; i++) {
 
         let item = caseList[i];
+        // 如果 item._id 在 uncheckedCaseArray 中
+        if (unCheckedCaseSet.has(item._id)) {
+          continue;
+        }
+
         let curEnvItem = _.find(curEnvList, key => {
           return key.project_id == item.project_id;
         });
@@ -259,7 +273,7 @@ class openController extends baseController {
     if (ctx.params.email === true && reportsResult.message.failedNum !== 0) {
       let autoTestUrl = `${
         ctx.request.origin
-      }/api/open/run_auto_test?id=${rootid}&token=${token}&mode=${ctx.params.mode}`;
+      }/api/open/run_auto_test?id=${rootid}&token=${token}&mode=${ctx.params.mode}&descendants=${ctx.params.descendants}&runCheckedCase=${ctx.params.runCheckedCase}`;
       yapi.commons.sendNotice(projectId, {
         title: `crazy-YApi自动化测试报告`,
         content: `

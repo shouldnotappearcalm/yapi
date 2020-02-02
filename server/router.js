@@ -440,6 +440,11 @@ let routerConfig = {
       method: 'post'
     },
     {
+      action: 'addBoundaryCaseList',
+      path: 'add_boundary_case_list',
+      method: 'post'
+    },
+    {
       action: 'cloneCaseList',
       path: 'clone_case_list',
       method: 'post'

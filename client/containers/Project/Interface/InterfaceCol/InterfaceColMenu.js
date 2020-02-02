@@ -97,6 +97,7 @@ export default class InterfaceColMenu extends Component {
     moveCaseVisible: false,
     editColId: 0,
     importInterVisible: false,
+    importCaseInterVisible: false,
     importInterIds: [],
     importColId: 0,
     selectedKey: [],
@@ -400,6 +401,14 @@ export default class InterfaceColMenu extends Component {
     this.setState({ importInterVisible: true, importColId: colId });
   };
 
+  showImportCaseInterfaceModal = async colId => {
+    // const projectId = this.props.match.params.id;
+    const groupId = this.props.curProject.group_id;
+    await this.props.fetchProjectList(groupId);
+    // await this.props.fetchInterfaceListMenu(projectId)
+    this.setState({ importCaseInterVisible: true, importColId: colId });
+  };
+
   handleImportOk = async () => {
     const project_id = this.state.selectedProject || this.props.match.params.id;
     const { importColId, importInterIds } = this.state;
@@ -419,8 +428,32 @@ export default class InterfaceColMenu extends Component {
       message.error(res.data.errmsg);
     }
   };
+
+  handleCaseImportOk = async () => {
+    const project_id = this.state.selectedProject || this.props.match.params.id;
+    const { importColId, importInterIds } = this.state;
+    const res = await axios.post('/api/col/add_boundary_case_list', {
+      interface_list: importInterIds,
+      col_id: importColId,
+      project_id
+    });
+    if (!res.data.errcode) {
+      this.setState({ importCaseInterVisible: false });
+      message.success('导入集合成功');
+      // await this.props.fetchInterfaceColList(project_id);
+      this.getList();
+
+      this.props.setColData({ isRander: true });
+    } else {
+      message.error(res.data.errmsg);
+    }
+  };
+
   handleImportCancel = () => {
     this.setState({ importInterVisible: false });
+  };
+  handleCaseImportCancel = () => {
+    this.setState({ importCaseInterVisible: false });
   };
 
   filterCol = e => {
@@ -653,7 +686,7 @@ export default class InterfaceColMenu extends Component {
   render() {
     // console.log('this.state.expandedKeys: ', this.state.expandedKeys);
     // const { currColId, currCaseId, isShowCol } = this.props;
-    const {colModalType, colModalVisible, importInterVisible, currentCol} = this.state;
+    const {colModalType, colModalVisible, importInterVisible, currentCol, importCaseInterVisible} = this.state;
     const currProjectId = this.props.match.params.id;
 
     const itemInterfaceColCreate = interfaceCase => {
@@ -720,6 +753,16 @@ export default class InterfaceColMenu extends Component {
                 <span>{col.name}</span>
               </span>
               <div className="btns">
+                <Tooltip title="导入接口生成边界测试用例">
+                  <Icon
+                    type="snippets"
+                    className="interface-delete-icon"
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.showImportCaseInterfaceModal(col._id);
+                    }}
+                  />
+                </Tooltip>
                 <Tooltip title="删除集合">
                   <Icon
                     type="delete"
@@ -847,6 +890,17 @@ export default class InterfaceColMenu extends Component {
           visible={importInterVisible}
           onOk={this.handleImportOk}
           onCancel={this.handleImportCancel}
+          className="import-case-modal"
+          width={800}
+        >
+          <ImportInterface currProjectId={currProjectId} selectInterface={this.selectInterface} />
+        </Modal>
+
+        <Modal
+          title="生成接口测试用例到集合"
+          visible={importCaseInterVisible}
+          onOk={this.handleCaseImportOk}
+          onCancel={this.handleCaseImportCancel}
           className="import-case-modal"
           width={800}
         >

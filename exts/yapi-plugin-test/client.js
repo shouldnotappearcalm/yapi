@@ -1,7 +1,9 @@
+import task from './component/Task/Task.js'
+
 function hander(routers) {
-  routers.test = {
-    name: 'test',
-    component: ()=> 'hello world.'
+  routers.interfaceOauth111 = {
+    name: '定时测试任务',
+    component: task
   };
 }
 

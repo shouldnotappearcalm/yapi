@@ -6,6 +6,7 @@ import axios from 'axios';
 import { message } from 'antd';
 import { Postman } from '../../../../../components';
 import AddColModal from './AddColModal';
+import json5 from 'json5';
 
 // import {
 // } from '../../../reducer/modules/group.js'
@@ -44,6 +45,199 @@ export default class Run extends Component {
     this.postman = postman;
   };
 
+  saveBoundaryCase = async (colId, caseName) => {
+    const project_id = this.props.match.params.id;
+    const interface_id = this.props.currInterface._id;
+
+    let currInterface = json5.parse(json5.stringify(this.props.currInterface));
+    const { req_body_other, req_body_type, req_body_is_json_schema } = currInterface;
+    let body = req_body_other;
+
+    let bodyArray = [];
+    if (req_body_type === 'json' && req_body_other && req_body_is_json_schema) {
+      
+      // 生成各种边界 schema
+      let schemaArray = [];
+
+      // 生成 超长 string 的 schema
+      let maxJson = {
+        name: caseName + '-max',
+        data: json5.parse(body)
+      };
+      this.generateErrorMaxString(maxJson.data);
+      schemaArray.push(maxJson);
+
+      // 生成短 string 的 schema
+      let minStringJson = {
+        name: caseName + '-min',
+        data: json5.parse(body)
+      };
+      this.generateErrorMinString(minStringJson.data);
+      schemaArray.push(minStringJson);
+
+      // 生成
+
+      for (let i = 0; i < schemaArray.length; i++) {
+        let result = await axios.post('/api/interface/schema2json', {
+          schema: schemaArray[i].data,
+          required: true
+        });
+        bodyArray.push({
+          name: schemaArray[i].name, 
+          data: JSON.stringify(result.data)
+        });
+      }
+
+      // 生成 null 的data
+      let nullObj = {
+        name: caseName + '-null',
+        data: JSON.parse(bodyArray[0].data)
+      };
+      this.generateErrorNull(nullObj.data);
+      nullObj.data = JSON.stringify(nullObj.data);
+      bodyArray.push(nullObj);
+
+    } else {
+      bodyArray.push({
+        name: caseName,
+        data: body
+      });
+    }
+
+    // 保存 case
+    const {
+      case_env,
+      req_params,
+      req_query,
+      req_headers,
+      req_body_form
+    } = this.postman.state;
+
+    let params = {
+      interface_id,
+      casename: caseName,
+      col_id: colId,
+      project_id,
+      case_env,
+      req_params,
+      req_query,
+      req_headers,
+      req_body_type,
+      req_body_form,
+      req_body_other: body
+    };
+
+    if (params.test_res_body && typeof params.test_res_body === 'object') {
+      params.test_res_body = JSON.stringify(params.test_res_body, null, '   ');
+    }
+
+    let res;
+    for (let i = 0; i < bodyArray.length; i++) {
+      params.req_body_other = bodyArray[i].data;
+      params.casename = bodyArray[i].name;
+      res = await axios.post('/api/col/add_case', params);
+    }
+
+    
+    if (res.data.errcode) {
+      message.error(res.data.errmsg);
+    } else {
+      message.success('添加成功');
+      this.setState({ saveBoundaryCaseModalVisible: false });
+    }
+
+  }
+
+  generateErrorMaxString = (obj) => {
+    if (obj && obj.type && obj.type === 'object') {
+        this.generateErrorMaxString(obj.properties);
+    } else {
+        for (let prop in obj) {
+            if (obj[prop].type === 'string') {
+                if (!obj[prop].minLength) {
+                    obj[prop].minLength = 1;
+                }
+                if (!obj[prop].maxLength) {
+                    // 根据公司的规范
+                    obj[prop].maxLength = 300;
+                }
+
+                // 生成异常测试用例
+                obj[prop].minLength = obj[prop].maxLength + 1;
+                obj[prop].maxLength = obj[prop].maxLength + 100;
+            }
+            if (obj[prop].type === 'number' || obj[prop].type === 'integer') {
+              if (!obj[prop].minimum) {
+                obj[prop].minimum = 1;
+              }
+              if (!obj[prop].maximum) {
+                  // 根据公司的规范
+                  obj[prop].maximum = 10;
+              }
+
+              // 生成异常测试用例
+              obj[prop].minimum = obj[prop].maximum + 1;
+              obj[prop].maximum = obj[prop].maximum + 100;
+            }
+
+            if (obj[prop].type === 'object') {
+                this.generateErrorMaxString(obj[prop].properties);
+            }
+        }
+    }
+  }
+
+  generateErrorMinString = (obj) => {
+    if (obj && obj.type && obj.type === 'object') {
+        this.generateErrorMinString(obj.properties);
+    } else {
+        for (let prop in obj) {
+            if (obj[prop].type === 'string') {
+                if (!obj[prop].minLength) {
+                    obj[prop].minLength = 1;
+                }
+                if (!obj[prop].maxLength) {
+                    // 根据公司的规范
+                    obj[prop].maxLength = 300;
+                }
+
+                // 生成异常测试用例
+                obj[prop].maxLength = (obj[prop].minLength - 1 > 0)? obj[prop].minLength - 1 > 0 : 0;
+                obj[prop].minLength = (obj[prop].maxLength - 10 > 0)? obj[prop].maxLength - 10 > 0 : 0;
+            }
+            
+            if (obj[prop].type === 'number' || obj[prop].type === 'integer') {
+              if (!obj[prop].minimum) {
+                obj[prop].minimum = 1;
+              }
+              if (!obj[prop].maximum) {
+                  // 根据公司的规范
+                  obj[prop].maximum = 10;
+              }
+
+              // 生成异常测试用例
+              obj[prop].maximum = obj[prop].minimum - 1;
+              obj[prop].minimum = obj[prop].maximum - 10;
+            }
+            if (obj[prop].type === 'object') {
+                this.generateErrorMinString(obj[prop].properties);
+            }
+        }
+    }
+  }
+
+  // 生成 null 的对象
+  generateErrorNull = (obj) => {
+    for (let prop in obj) {
+      if (typeof(obj[prop]) === 'object') {
+        this.generateErrorNull(obj[prop]);
+      } else {
+        obj[prop] = null;
+      }
+    }
+  }
+
+
   saveCase = async (colId, caseName) => {
     const project_id = this.props.match.params.id;
     const interface_id = this.props.currInterface._id;
@@ -56,6 +250,7 @@ export default class Run extends Component {
       req_body_form,
       req_body_other
     } = this.postman.state;
+
 
     let params = {
       interface_id,
@@ -100,6 +295,7 @@ export default class Run extends Component {
           type="inter"
           saveTip="保存到集合"
           save={() => this.setState({ saveCaseModalVisible: true })}
+          boundaryCaseSave={() => this.setState({ saveBoundaryCaseModalVisible: true })}
           ref={this.savePostmanRef}
           interfaceId={currInterface._id}
           projectId={currInterface.project_id}
@@ -111,6 +307,12 @@ export default class Run extends Component {
           caseName={currInterface.title}
           onCancel={() => this.setState({ saveCaseModalVisible: false })}
           onOk={this.saveCase}
+        />
+        <AddColModal
+          visible={this.state.saveBoundaryCaseModalVisible}
+          caseName={currInterface.title}
+          onCancel={() => this.setState({ saveBoundaryCaseModalVisible: false })}
+          onOk={this.saveBoundaryCase}
         />
       </div>
     );

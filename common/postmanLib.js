@@ -322,8 +322,34 @@ async function crossRequest(defaultOptions, preScript, afterScript,case_pre_scri
 
   let data;
 
-  data = await httpRequestByNode(options);
-  data.req = options;
+  if (isNode) {
+    data = await httpRequestByNode(options);
+    data.req = options;
+  } else {
+    data = await new Promise((resolve, reject) => {
+      options.error = options.success = function(res, header, data) {
+        let message = '';
+        if (res && typeof res === 'string') {
+          res = json_parse(data.res.body);
+          data.res.body = res;
+        }
+        if (!isNode) message = '请求异常，请检查 chrome network 错误信息... https://juejin.im/post/5c888a3e5188257dee0322af 通过该链接查看教程"）';
+        if (isNaN(data.res.status)) {
+          reject({
+            body: res || message,
+            header,
+            message
+          });
+        }
+        resolve(data);
+      };
+
+      window.crossRequest(options);
+    });
+  }
+
+  // data = await httpRequestByNode(options);
+  // data.req = options;
   data.utils=context.utils;
   data.storage=context.storage;
 

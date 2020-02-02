@@ -23,6 +23,7 @@ import _ from 'underscore';
 import {deepCopyJson, isJson, json5_parse} from '../../common.js';
 import axios from 'axios';
 import ModalPostman from '../ModalPostman/index.js';
+import CheckCrossInstall, { initCrossRequest } from './CheckCrossInstall.js';
 import './Postman.scss';
 import ProjectEnv from '../../containers/Project/Setting/ProjectEnv/index.js';
 import json5 from 'json5';
@@ -125,6 +126,7 @@ export default class Run extends Component {
   static propTypes = {
     data: PropTypes.object, //接口原有数据
     save: PropTypes.func, //保存回调方法
+    boundaryCaseSave: PropTypes.func, //保存回调方法
     type: PropTypes.string, //enum[case, inter], 判断是在接口页面使用还是在测试集
     projectToken:PropTypes.string,
     curUid: PropTypes.number.isRequired,
@@ -264,7 +266,11 @@ export default class Run extends Component {
   }
 
    componentWillMount() {
-
+    this._crossRequestInterval = initCrossRequest(hasPlugin => {
+      this.setState({
+        hasPlugin: hasPlugin
+      });
+    });
     this.initState(this.props.data);
 
   }
@@ -736,6 +742,8 @@ export default class Run extends Component {
           </Modal>
         )}
 
+        <CheckCrossInstall hasPlugin={hasPlugin} />
+
         <div className="url">
           <InputGroup compact style={{ display: 'flex' }}>
             <Select disabled value={method} style={{ flexBasis: 60 }}>
@@ -803,6 +811,19 @@ export default class Run extends Component {
               {loading ? '取消' : '发送'}
             </Button>
           </Tooltip>
+          {this.props.type === 'inter' ? <Tooltip
+            placement="bottom"
+            title='生成边界测试用例'
+          >
+            <Button
+              onClick={this.props.boundaryCaseSave}
+              type="primary"
+              style={{ marginLeft: 10 }}
+
+            >
+              边界测试
+            </Button>
+          </Tooltip> : ''}
 
           <Tooltip
             placement="bottom"
