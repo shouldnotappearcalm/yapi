@@ -16,14 +16,12 @@ const Mock = require('mockjs');
 const utils = require('../../common/power-string.js').utils;
 const CryptoJS = require('crypto-js');
 const jsrsasign = require('jsrsasign');
-
+const axios = require('axios');
+const getStorage = require('../../common/postmanLib').getStorage;
 const ejs = require('easy-json-schema');
-
 const jsf = require('json-schema-faker');
 const { schemaValidator } = require('../../common/utils');
-const http = require('http');
 const https = require('https');
-const axios = require('axios');
 
 jsf.extend ('mock', function () {
   return {
@@ -50,7 +48,7 @@ const defaultOptions = {
 
 exports.schemaToJson = function(schema, options = {}) {
   Object.assign(options, defaultOptions);
-  
+
   jsf.option(options);
   let result;
   try {
@@ -379,7 +377,7 @@ exports.translateDataToTree=(data,mynodeid)=> {
     children = JSON.parse(JSON.stringify(data.filter(value => (typeof value.parent_id) !== 'undefined' || value._id != -1)));
   }
   
-    let translator = (parents, children,mynode) => {
+  let translator = (parents, children,mynode) => {
     parents.forEach((parent) => {
       parent.parent_id=(typeof parent.parent_id) == 'undefined'?-1: parent.parent_id;
       parent.treePath=(typeof parent.treePath) == 'undefined'?[]: parent.treePath;
@@ -434,13 +432,21 @@ exports.translateDataToTree=(data,mynodeid)=> {
     result[i].parent_id=(typeof result[i].parent_id) == 'undefined'?-1: result[i].parent_id;
     let caseList = await caseInst.list(result[i]._id);
 
-    for(let j=0; j< caseList.length; j++){
-      let item = caseList[j].toObject();
-      let interfaceData = await interfaceInst.getBaseinfo(item.interface_id);
-      item.path = interfaceData.path;
-      caseList[j] = item;
+    // for(let j=0; j< caseList.length; j++){
+    //   let item = caseList[j].toObject();
+    //   let interfaceData = await interfaceInst.getBaseinfo(item.interface_id);
+    //   item.path = interfaceData.path;
+    //   caseList[j] = item;
+    //
+    // }
 
-    }
+    const interfaceDataList = await Promise.all(
+      caseList.map(item => interfaceInst.getBaseinfo(item.interface_id))
+    );
+    interfaceDataList.forEach((item, index) => {
+      caseList[index] = caseList[index].toObject();
+      caseList[index].path = item.path;
+    });
 
     caseList = caseList.sort((a, b) => {
       return a.index - b.index;
@@ -524,7 +530,7 @@ exports.createAction = (router, baseurl, routerController, action, path, method,
       await inst.init(ctx);
       ctx.params = Object.assign({}, ctx.request.query, ctx.request.body, ctx.params);
       if (inst.schemaMap && typeof inst.schemaMap === 'object' && inst.schemaMap[action]) {
-        
+
         let validResult = yapi.commons.validateParams(inst.schemaMap[action], ctx.params);
 
         if (!validResult.valid) {
@@ -629,6 +635,11 @@ function convertString(variable) {
 exports.runCaseScript = async function runCaseScript(params, colId, interfaceId) {
   const colInst = yapi.getInst(interfaceColModel);
   let colData = await colInst.get(colId);
+  const currentStorage = await getStorage(params.taskId || Math.random() + '');
+  if (params.storageDict && typeof params.storageDict === 'object') {
+    const storageKeys = Object.keys(params.storageDict);
+    await Promise.all(storageKeys.map(key => currentStorage.setItem(key, params.storageDict[key])))
+  }
   const logs = [];
   const context = {
     assert: require('assert'),
@@ -666,7 +677,7 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
         throw ('Http status code 不是 200，请检查(该规则来源于于 [测试集->通用规则配置] )')
       }
     }
-  
+
     if(colData.checkResponseField.enable){
       if(params.response.body[colData.checkResponseField.name] != colData.checkResponseField.value){
         throw (`返回json ${colData.checkResponseField.name} 值不是${colData.checkResponseField.value}，请检查(该规则来源于于 [测试集->通用规则配置] )`)
@@ -704,11 +715,14 @@ ${JSON.stringify(schema,null,2)}`)
       result = yapi.commons.sandbox(context, script);
     }
     result.logs = logs;
-    delete result.utils
+    delete result.utils;
+    delete result.storage;
+    delete result.assert;
     return yapi.commons.resReturn(result);
   } catch (err) {
     //logs.push(convertString(err));
     result.logs = logs;
+    console.log('err result', result);
     logs.push(err.name + ': ' + err.message)
     return yapi.commons.resReturn(result, 400, err.name + ': ' + err.message);
   }
