@@ -247,7 +247,6 @@ async function crossRequest(defaultOptions, preScript, afterScript,case_pre_scri
     query = {};
   query = Object.assign(query, urlObj.query);
   //console.log("context init start!");
-
   let context = {
     isNode,
     get href() {

@@ -407,6 +407,8 @@ class openController extends baseController {
   }
 
   async handleScriptTest(caseItemData, response, validRes, requestParams,utils,storage) {
+    let curEnv = _.find(caseItemData.env, item => item.name === caseItemData.case_env);
+
       try {
       let test = await yapi.commons.runCaseScript({
         response: response,
@@ -414,7 +416,9 @@ class openController extends baseController {
         script: caseItemData.test_script,
         utils:utils,
         storage:storage,
-        params: requestParams
+        params: requestParams,
+        project_id: caseItemData.project_id,
+        env_id: curEnv._id.toString()
       }, caseItemData.col_id, caseItemData.interface_id, this.getUid());
 
       if (test.errcode !== 0) {

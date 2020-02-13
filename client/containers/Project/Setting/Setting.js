@@ -6,6 +6,7 @@ import ProjectEnv from './ProjectEnv/index.js';
 import ProjectRequest from './ProjectRequest/ProjectRequest';
 import ProjectToken from './ProjectToken/ProjectToken';
 import ProjectMock from './ProjectMock/index.js';
+import DatabaseConfig from './DatbaseInfo/DatabaseConfig/DatabaseConfig';
 import { connect } from 'react-redux';
 const TabPane = Tabs.TabPane;
 const plugin = require('client/plugin.js');
@@ -46,6 +47,9 @@ class Setting extends Component {
           ) : null}
           <TabPane tab="全局mock脚本" key="5">
             <ProjectMock projectId={+id} />
+          </TabPane>
+          <TabPane tab="数据库连接配置" key="6">
+            <DatabaseConfig projectId={+id} />
           </TabPane>
           {Object.keys(routers).map(key=>{
             const C = routers[key].component;

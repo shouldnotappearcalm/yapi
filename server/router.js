@@ -10,6 +10,7 @@ const projectController = require('./controllers/project.js');
 const logController = require('./controllers/log.js');
 const followController = require('./controllers/follow.js');
 const openController = require('./controllers/open.js');
+const databaseInfoController = require('./controllers/databaseInfo.js')
 const { createAction } = require('./utils/commons.js');
 
 const router = koaRouter();
@@ -46,6 +47,10 @@ let INTERFACE_CONFIG = {
   test: {
     prefix: '/test/',
     controller: testController
+  },
+  databaseInfo: {
+    prefix: '/databaseInfo/',
+    controller: databaseInfoController
   },
   open: {
     prefix: '/open/',
@@ -584,6 +589,23 @@ let routerConfig = {
     {
       action: 'testResponse',
       path: 'response',
+      method: 'get'
+    }
+  ],
+  databaseInfo: [
+    {
+      action: 'getDatabaseInfo',
+      path: '',
+      method: 'get'
+    },
+    {
+      action: 'saveDatabaseInfo',
+      path: '',
+      method: 'post'
+    },
+    {
+      action: 'getAllDatabaseInfoByProjectId',
+      path: 'all',
       method: 'get'
     }
   ],

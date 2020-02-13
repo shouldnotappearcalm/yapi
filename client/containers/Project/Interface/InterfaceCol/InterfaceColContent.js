@@ -270,7 +270,6 @@ class InterfaceColContent extends Component {
       let envItem = _.find(this.props.envList, item => {
         return item._id === rows[i].project_id;
       });
-
       curitem = Object.assign(
         {},
         {caseitme:rows[i]},
@@ -279,7 +278,8 @@ class InterfaceColContent extends Component {
           pre_script: this.props.currProject.pre_script,
           after_script: this.props.currProject.after_script
         },
-        {token:this.props.token}
+        {token:this.props.token},
+        {project_id: envItem._id}
       );
       curitem.caseitme.test_status='loading'
       newRows = [].concat([], rows);
@@ -362,7 +362,6 @@ class InterfaceColContent extends Component {
       let envItem = _.find(this.props.envList, item => {
         return item._id === rows[i].project_id;
       });
-
       curitem = Object.assign(
         {},
         rows[i],
@@ -416,13 +415,11 @@ class InterfaceColContent extends Component {
   handleTest = async interfaceData => {
     let requestParams = {};
     let options = handleParams(interfaceData, this.handleValue, requestParams);
-
     let result = {
       code: 400,
       msg: '数据异常',
       validRes: []
     };
-
     try {
       let data = await crossRequest(options, interfaceData.pre_script, interfaceData.after_script,interfaceData.case_pre_script,interfaceData.case_post_script, createContext(
         this.props.curUid,
@@ -497,6 +494,7 @@ class InterfaceColContent extends Component {
   //response, validRes
   // 断言测试
   handleScriptTest = async (interfaceData, response, validRes, requestParams) => {
+    let currDomain = handleCurrDomain(interfaceData.env, interfaceData.case_env);
     // 是否启动断言
     try {
       let test = await axios.post('/api/col/run_script', {
@@ -505,7 +503,9 @@ class InterfaceColContent extends Component {
         script: interfaceData.test_script,
         params: requestParams,
         col_id: this.props.currColId,
-        interface_id: interfaceData.interface_id
+        interface_id: interfaceData.interface_id,
+        project_id: interfaceData.project_id,
+        env_id: currDomain._id
       });
       if (test.data.errcode !== 0) {
         test.data.data.logs.forEach(item => {
