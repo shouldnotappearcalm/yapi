@@ -425,49 +425,46 @@ exports.translateDataToTree = (data, mynodeid) => {
 }
 
 
-exports.getCol = async function getCol(project_id, islist, mycatid) {
+exports.getCol = async function getCol(project_id,islist,mycatid) {
 
   const caseInst = yapi.getInst(interfaceCaseModel);
   const colInst = yapi.getInst(interfaceColModel);
   const interfaceInst = yapi.getInst(interfaceModel);
-  let result = await colInst.list(project_id);
-  result = result.sort((a, b) => {
-    return a.index - b.index;
-  });
+ let result = await colInst.list(project_id);
+ result = result.sort((a, b) => {
+   return a.index - b.index;
+ });
 
-  for (let i = 0; i < result.length; i++) {
-    result[i] = result[i].toObject();
-    result[i].parent_id = (typeof result[i].parent_id) == 'undefined' ? -1 : result[i].parent_id;
-    let caseList = await caseInst.list(result[i]._id);
+ for (let i = 0; i < result.length; i++) {
+   result[i] = result[i].toObject();
+   result[i].parent_id=(typeof result[i].parent_id) == 'undefined'?-1: result[i].parent_id;
+   let caseList = await caseInst.list(result[i]._id);
 
-    for (let j = 0; j < caseList.length; j++) {
-      let item = caseList[j].toObject();
-      let interfaceData = await interfaceInst.getBaseinfo(item.interface_id);
-      item.path = interfaceData.path;
-      caseList[j] = item;
+   // for(let j=0; j< caseList.length; j++){
+   //   let item = caseList[j].toObject();
+   //   let interfaceData = await interfaceInst.getBaseinfo(item.interface_id);
+   //   item.path = interfaceData.path;
+   //   caseList[j] = item;
+   //
+   // }
 
-      // const interfaceDataList = await Promise.all(
-      //   caseList.map(item => interfaceInst.getBaseinfo(item.interface_id))
-      // );
-      // interfaceDataList.forEach((item, index) => {
-      //   caseList[index] = caseList[index].toObject();
-      //   caseList[index].path = item.path;
-      // });
+   const interfaceDataList = await Promise.all(
+     caseList.map(item => interfaceInst.getBaseinfo(item.interface_id))
+   );
+   interfaceDataList.forEach((item, index) => {
+     caseList[index] = caseList[index].toObject();
+     caseList[index].path = item.path;
+   });
 
-      caseList = caseList.sort((a, b) => {
-        return a.index - b.index;
-      });
-      if (caseList && caseList.length > 0) {
-        result[i].caseList = caseList;
-      }
-    }
-    if (mycatid == -1) {
-      result.push({ _id: -1 });
-    }
-
-    result = islist ? result : this.translateDataToTree(result, mycatid);
-    return result;
-  }
+   caseList = caseList.sort((a, b) => {
+     return a.index - b.index;
+   });
+   if(caseList&&caseList.length>0){
+     result[i].caseList = caseList;
+   }
+ }
+ result = islist ? result :  this.translateDataToTree(result,mycatid);
+ return result;
 }
 
 
