@@ -141,6 +141,7 @@ function validHtml(validRes) {
     validRes = validRes.map((item, index) => {
       return `<div key=${index}>${item.message}</div>`;
     });
+    validRes = validRes.join('');
   }
   let html = `
   <div>

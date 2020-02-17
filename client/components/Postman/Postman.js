@@ -229,12 +229,12 @@ export default class Run extends Component {
 
     data.case_pre_script= typeof case_pre_script === "undefined"?'':case_pre_script;
     data.case_post_script= typeof case_post_script === "undefined"?'':case_post_script;
-
     this.setState(
       {
         ...this.state,
         test_res_header: null,
         test_res_body: null,
+        test_script: null,
         ...data,
         req_body_other: body,
         resStatusCode: null,

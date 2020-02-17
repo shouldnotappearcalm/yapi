@@ -25,6 +25,7 @@ const { schemaValidator } = require('../../common/utils');
 const http = require('http');
 const https = require('https');
 const axios = require('axios');
+const defaultUtil = require('util')
 
 const sqlRunnerHost = 'http://172.25.8.34:3111'
 
@@ -652,6 +653,7 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
     header: params.response.header,
     records: params.records,
     params: params.params,
+    defaultUtil: defaultUtil,
     utils: Object.freeze({
       _: _,
       CryptoJS: CryptoJS,
@@ -681,7 +683,7 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
         sql: sql,
         databaseInfoDto: databaseInfo
       };
-      logs.push(JSON.stringify(dataObj));
+      logs.push("传入sql语句：【" + sql + "】");
 
       const axios = require('axios')
       let response = await axios({

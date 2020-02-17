@@ -378,21 +378,23 @@ class openController extends baseController {
           statusText: res.statusText
         }
       );
+      let errcode = 0;
+      if (caseItemData.enable_script == true && caseItemData.test_script && caseItemData.test_script.length > 0) {
+        errcode = await this.handleScriptTest(caseItemData, responseData, validRes, requestParams, data.utils, data.storage);
+      } else {
+        validRes.push({ message: '验证通过' });
+      }
 
-      if(caseItemData.test_script&&caseItemData.test_script.length>0){
-      await this.handleScriptTest(caseItemData, responseData, validRes, requestParams,   data.utils,
-        data.storage);
-      }
+
       result.params = requestParams;
-      if (validRes.length === 0) {
+      if (errcode == 0) {
         result.code = 0;
-        result.validRes = [{ message: '验证通过' }];
         result.statusText='OK'
-      } else if (validRes.length > 0) {
+      } else {
         result.code = 1;
-        result.validRes = validRes;
-        result.statusText='test脚本出错：奈何兄弟没文化！一句xx走天下！'
+        result.statusText='test脚本出错!!！'
       }
+      result.validRes = validRes;
     } catch (data) {
       result = Object.assign(options, result, {
         res_header: data.header,
@@ -421,17 +423,20 @@ class openController extends baseController {
         env_id: curEnv._id.toString()
       }, caseItemData.col_id, caseItemData.interface_id, this.getUid());
 
-      if (test.errcode !== 0) {
-        test.data.logs.forEach(item => {
-          validRes.push({
-            message: item
-          });
-        });
+      if (test.errcode == 0) {
+        validRes.push({ message: '验证通过' });
       }
+      test.data.logs.forEach(item => {
+        validRes.push({
+          message: item
+        });
+      });
+      return test.errcode;
     } catch (err) {
       validRes.push({
         message: 'Error: ' + err.message
       });
+      return -1;
     }
   }
 

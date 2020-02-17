@@ -455,21 +455,16 @@ class InterfaceColContent extends Component {
           statusText: data.res.statusText
         }
       );
-
-      // 断言测试
-      await this.handleScriptTest(interfaceData, responseData, validRes, requestParams);
-
-      if (validRes.length === 0) {
-        result.code = 0;
-        result.validRes = [
-          {
-            message: '验证通过'
-          }
-        ];
-      } else if (validRes.length > 0) {
-        result.code = 1;
-        result.validRes = validRes;
+      let errcode = 0;
+      if (interfaceData && interfaceData.enable_script == true && interfaceData.test_script && interfaceData.test_script.length > 0) {
+        // 断言测试
+        errcode = await this.handleScriptTest(interfaceData, responseData, validRes, requestParams);
+      } else {
+        validRes.push({ message: '验证通过' });
       }
+
+      result.code = errcode == 0 ? 0 : 1;
+      result.validRes = validRes;
     } catch (data) {
       result = {
         ...options,
@@ -507,15 +502,18 @@ class InterfaceColContent extends Component {
         project_id: interfaceData.project_id,
         env_id: currDomain._id
       });
-      if (test.data.errcode !== 0) {
-        test.data.data.logs.forEach(item => {
-          validRes.push({ message: item });
-        });
+      if (test.data.errcode == 0) {
+        validRes.push({ message: '验证通过' });
       }
+      test.data.data.logs.forEach(item => {
+        validRes.push({ message: item });
+      });
+      return test.data.errcode;
     } catch (err) {
       validRes.push({
         message: 'Error: ' + err.message
       });
+      return -1;
     }
   };
 

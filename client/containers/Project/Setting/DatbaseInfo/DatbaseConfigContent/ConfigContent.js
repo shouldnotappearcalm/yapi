@@ -110,7 +110,7 @@ class ConfigContent extends Component {
                     <Option value="MySQL">MySQL</Option>
                     <Option value="Sybase">Sybase</Option>
                     <Option value="Oracle">Oracle</Option>
-                    <Option value="DaMeng">DaMeng</Option>
+                    <Option value="DaMeng">达梦</Option>
                     <Option value="SQLServer">SQLServer</Option>
                     <Option value="KingBase">人大金仓</Option>
                   </Select>
