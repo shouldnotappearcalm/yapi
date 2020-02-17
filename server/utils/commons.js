@@ -17,14 +17,12 @@ const Mock = require('mockjs');
 const utils = require('../../common/power-string.js').utils;
 const CryptoJS = require('crypto-js');
 const jsrsasign = require('jsrsasign');
-
+const axios = require('axios');
+const getStorage = require('../../common/postmanLib').getStorage;
 const ejs = require('easy-json-schema');
-
 const jsf = require('json-schema-faker');
 const { schemaValidator } = require('../../common/utils');
-const http = require('http');
 const https = require('https');
-const axios = require('axios');
 const defaultUtil = require('util')
 
 const sqlRunnerHost = 'http://172.25.8.34:3111'
@@ -448,23 +446,29 @@ exports.getCol = async function getCol(project_id, islist, mycatid) {
       item.path = interfaceData.path;
       caseList[j] = item;
 
+      // const interfaceDataList = await Promise.all(
+      //   caseList.map(item => interfaceInst.getBaseinfo(item.interface_id))
+      // );
+      // interfaceDataList.forEach((item, index) => {
+      //   caseList[index] = caseList[index].toObject();
+      //   caseList[index].path = item.path;
+      // });
+
+      caseList = caseList.sort((a, b) => {
+        return a.index - b.index;
+      });
+      if (caseList && caseList.length > 0) {
+        result[i].caseList = caseList;
+      }
+    }
+    if (mycatid == -1) {
+      result.push({ _id: -1 });
     }
 
-    caseList = caseList.sort((a, b) => {
-      return a.index - b.index;
-    });
-    if (caseList && caseList.length > 0) {
-      result[i].caseList = caseList;
-    }
+    result = islist ? result : this.translateDataToTree(result, mycatid);
+    return result;
   }
-  if (mycatid == -1) {
-    result.push({ _id: -1 });
-  }
-
-  result = islist ? result : this.translateDataToTree(result, mycatid);
-  return result;
 }
-
 
 
 exports.validateParams = (schema2, params) => {
@@ -645,6 +649,11 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
   yapi.commons.changeObjKeytoHump(databaseInfo);
 
 
+  const currentStorage = await getStorage(params.taskId || Math.random() + '');
+  if (params.storageDict && typeof params.storageDict === 'object') {
+    const storageKeys = Object.keys(params.storageDict);
+    await Promise.all(storageKeys.map(key => currentStorage.setItem(key, params.storageDict[key])))
+  }
   const logs = [];
   const context = {
     assert: require('assert'),
@@ -746,11 +755,14 @@ ${JSON.stringify(schema, null, 2)}`)
       result = await yapi.commons.sandbox(context, script);
     }
     result.logs = logs;
-    delete result.utils
+    delete result.utils;
+    delete result.storage;
+    delete result.assert;
     return yapi.commons.resReturn(result);
   } catch (err) {
     //logs.push(convertString(err));
     result.logs = logs;
+    console.log('err result', result);
     logs.push(err.name + ': ' + err.message)
     return yapi.commons.resReturn(result, 400, err.name + ': ' + err.message);
   }

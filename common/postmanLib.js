@@ -203,7 +203,6 @@ function sandboxByNode(sandbox = {}, script) {
 
 async function sandbox(context = {}, script) {
   try {
-
     context.context = context;
     context.console = console;
     context.Promise = Promise;
@@ -511,3 +510,4 @@ exports.handleContentType = handleContentType;
 exports.crossRequest = crossRequest;
 exports.handleCurrDomain = handleCurrDomain;
 exports.checkNameIsExistInArray = checkNameIsExistInArray;
+exports.getStorage = getStorage;
