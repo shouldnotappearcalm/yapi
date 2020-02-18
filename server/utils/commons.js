@@ -25,7 +25,7 @@ const { schemaValidator } = require('../../common/utils');
 const https = require('https');
 const defaultUtil = require('util')
 
-const sqlRunnerHost = 'http://172.25.8.34:3111'
+const sqlRunnerHost = yapi.WEBCONFIG.sqlRunnerHost;
 
 jsf.extend('mock', function () {
   return {

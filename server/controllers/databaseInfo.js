@@ -2,7 +2,7 @@ const yapi = require('../yapi.js');
 const baseController = require('./base.js');
 const databaseInfoModel = require('../models/databaseInfo.js');
 const axios = require('axios');
-const sqlRunnerHost = 'http://localhost:3111';
+const sqlRunnerHost = yapi.WEBCONFIG.sqlRunnerHost;
 
 class databaseInfoController extends baseController {
 

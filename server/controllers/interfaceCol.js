@@ -598,7 +598,7 @@ class interfaceColController extends baseController {
     }
   }
 
-  handleJsonString = (obj) => {
+  handleJsonString(obj) {
     if (obj && obj.type && obj.type === 'object') {
         this.handleJsonString(obj.properties);
     } else { 
