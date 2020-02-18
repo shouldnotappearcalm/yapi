@@ -1,6 +1,6 @@
-exports.generateErrorMaxString = (obj) => {
+function generateErrorMaxString(obj) {
     if (obj && obj.type && obj.type === 'object') {
-        this.generateErrorMaxString(obj.properties);
+        generateErrorMaxString(obj.properties);
     } else {
         for (let prop in obj) {
             if (obj[prop].type === 'string') {
@@ -31,15 +31,15 @@ exports.generateErrorMaxString = (obj) => {
             }
 
             if (obj[prop].type === 'object') {
-                this.generateErrorMaxString(obj[prop].properties);
+                generateErrorMaxString(obj[prop].properties);
             }
         }
     }
-};
+}
 
-exports.generateErrorMinString = (obj) => {
+function generateErrorMinString(obj) {
     if (obj && obj.type && obj.type === 'object') {
-        this.generateErrorMinString(obj.properties);
+        generateErrorMinString(obj.properties);
     } else {
         for (let prop in obj) {
             if (obj[prop].type === 'string') {
@@ -70,19 +70,23 @@ exports.generateErrorMinString = (obj) => {
                 obj[prop].minimum = obj[prop].maximum - 10;
             }
             if (obj[prop].type === 'object') {
-                this.generateErrorMinString(obj[prop].properties);
+                generateErrorMinString(obj[prop].properties);
             }
         }
     }
-};
+}
 
 // 生成 null 的对象
-exports.generateErrorNull = (obj) => {
+function generateErrorNull(obj) {
     for (let prop in obj) {
         if (typeof (obj[prop]) === 'object') {
-            this.generateErrorNull(obj[prop]);
+            generateErrorNull(obj[prop]);
         } else {
             obj[prop] = null;
         }
     }
-};
+}
+
+exports.generateErrorMaxString = generateErrorMaxString;
+exports.generateErrorMinString = generateErrorMinString;
+exports.generateErrorNull = generateErrorNull;

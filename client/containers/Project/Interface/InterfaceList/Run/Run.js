@@ -7,6 +7,7 @@ import { message } from 'antd';
 import { Postman } from '../../../../../components';
 import AddColModal from './AddColModal';
 import json5 from 'json5';
+const boundaryUtils = require('../../../../../../common/boundary.js')
 
 // import {
 // } from '../../../reducer/modules/group.js'
@@ -64,7 +65,7 @@ export default class Run extends Component {
         name: caseName + '-max',
         data: json5.parse(body)
       };
-      this.generateErrorMaxString(maxJson.data);
+      boundaryUtils.generateErrorMaxString(maxJson.data);
       schemaArray.push(maxJson);
 
       // 生成短 string 的 schema
@@ -72,7 +73,7 @@ export default class Run extends Component {
         name: caseName + '-min',
         data: json5.parse(body)
       };
-      this.generateErrorMinString(minStringJson.data);
+      boundaryUtils.generateErrorMinString(minStringJson.data);
       schemaArray.push(minStringJson);
 
       // 生成
@@ -93,7 +94,7 @@ export default class Run extends Component {
         name: caseName + '-null',
         data: JSON.parse(bodyArray[0].data)
       };
-      this.generateErrorNull(nullObj.data);
+      boundaryUtils.generateErrorNull(nullObj.data);
       nullObj.data = JSON.stringify(nullObj.data);
       bodyArray.push(nullObj);
 
@@ -146,95 +147,6 @@ export default class Run extends Component {
       this.setState({ saveBoundaryCaseModalVisible: false });
     }
 
-  }
-
-  generateErrorMaxString = (obj) => {
-    if (obj && obj.type && obj.type === 'object') {
-        this.generateErrorMaxString(obj.properties);
-    } else {
-        for (let prop in obj) {
-            if (obj[prop].type === 'string') {
-                if (!obj[prop].minLength) {
-                    obj[prop].minLength = 1;
-                }
-                if (!obj[prop].maxLength) {
-                    // 根据公司的规范
-                    obj[prop].maxLength = 300;
-                }
-
-                // 生成异常测试用例
-                obj[prop].minLength = obj[prop].maxLength + 1;
-                obj[prop].maxLength = obj[prop].maxLength + 100;
-            }
-            if (obj[prop].type === 'number' || obj[prop].type === 'integer') {
-              if (!obj[prop].minimum) {
-                obj[prop].minimum = 1;
-              }
-              if (!obj[prop].maximum) {
-                  // 根据公司的规范
-                  obj[prop].maximum = 10;
-              }
-
-              // 生成异常测试用例
-              obj[prop].minimum = obj[prop].maximum + 1;
-              obj[prop].maximum = obj[prop].maximum + 100;
-            }
-
-            if (obj[prop].type === 'object') {
-                this.generateErrorMaxString(obj[prop].properties);
-            }
-        }
-    }
-  }
-
-  generateErrorMinString = (obj) => {
-    if (obj && obj.type && obj.type === 'object') {
-        this.generateErrorMinString(obj.properties);
-    } else {
-        for (let prop in obj) {
-            if (obj[prop].type === 'string') {
-                if (!obj[prop].minLength) {
-                    obj[prop].minLength = 1;
-                }
-                if (!obj[prop].maxLength) {
-                    // 根据公司的规范
-                    obj[prop].maxLength = 300;
-                }
-
-                // 生成异常测试用例
-                obj[prop].maxLength = (obj[prop].minLength - 1 > 0)? obj[prop].minLength - 1 > 0 : 0;
-                obj[prop].minLength = (obj[prop].maxLength - 10 > 0)? obj[prop].maxLength - 10 > 0 : 0;
-            }
-            
-            if (obj[prop].type === 'number' || obj[prop].type === 'integer') {
-              if (!obj[prop].minimum) {
-                obj[prop].minimum = 1;
-              }
-              if (!obj[prop].maximum) {
-                  // 根据公司的规范
-                  obj[prop].maximum = 10;
-              }
-
-              // 生成异常测试用例
-              obj[prop].maximum = obj[prop].minimum - 1;
-              obj[prop].minimum = obj[prop].maximum - 10;
-            }
-            if (obj[prop].type === 'object') {
-                this.generateErrorMinString(obj[prop].properties);
-            }
-        }
-    }
-  }
-
-  // 生成 null 的对象
-  generateErrorNull = (obj) => {
-    for (let prop in obj) {
-      if (typeof(obj[prop]) === 'object') {
-        this.generateErrorNull(obj[prop]);
-      } else {
-        obj[prop] = null;
-      }
-    }
   }
 
 
