@@ -89,12 +89,12 @@ function postman(importDataModule) {
 
   function run(res) {
     try {
+      debugger
       res = JSON.parse(res);
       res = res.log.entries;
-
       res = res.filter(item => {
         if (!item) return false;
-        return item.response.content.mimeType.indexOf('application/json') === 0;
+        return item.response.content.mimeType.indexOf('application/json') === 0 || item.response.content.mimeType.indexOf('text/plain') === 0;
       });
 
       let interfaceData = { apis: [] };
