@@ -89,7 +89,6 @@ function postman(importDataModule) {
 
   function run(res) {
     try {
-      debugger
       res = JSON.parse(res);
       res = res.log.entries;
       res = res.filter(item => {
