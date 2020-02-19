@@ -1,8 +1,9 @@
-function generateErrorMaxString(obj) {
+function generateErrorMax(obj) {
     if (obj && obj.type && obj.type === 'object') {
-        generateErrorMaxString(obj.properties);
+        generateErrorMax(obj.properties);
     } else {
         for (let prop in obj) {
+            // string 类型
             if (obj[prop].type === 'string') {
                 if (!obj[prop].minLength) {
                     obj[prop].minLength = 1;
@@ -16,6 +17,7 @@ function generateErrorMaxString(obj) {
                 obj[prop].minLength = obj[prop].maxLength + 1;
                 obj[prop].maxLength = obj[prop].maxLength + 100;
             }
+            // integer 或者1number 类型
             if (obj[prop].type === 'number' || obj[prop].type === 'integer') {
                 if (!obj[prop].minimum) {
                     obj[prop].minimum = 1;
@@ -29,17 +31,32 @@ function generateErrorMaxString(obj) {
                 obj[prop].minimum = obj[prop].maximum + 1;
                 obj[prop].maximum = obj[prop].maximum + 100;
             }
+            // array 类型
+            if (obj[prop].type === 'array') {
+                if (!obj[prop].minItems) {
+                    obj[prop].minItems = 1;
+                }
+                if (!obj[prop].maxItems) {
+                    // 根据公司的规范
+                    obj[prop].maxItems = 10;
+                }
+
+                // 生成异常测试用例
+                obj[prop].minItems = obj[prop].maxItems + 1;
+                obj[prop].maxItems = obj[prop].maxItems + 10;
+            }
+
 
             if (obj[prop].type === 'object') {
-                generateErrorMaxString(obj[prop].properties);
+                generateErrorMax(obj[prop].properties);
             }
         }
     }
 }
 
-function generateErrorMinString(obj) {
+function generateErrorMin(obj) {
     if (obj && obj.type && obj.type === 'object') {
-        generateErrorMinString(obj.properties);
+        generateErrorMin(obj.properties);
     } else {
         for (let prop in obj) {
             if (obj[prop].type === 'string') {
@@ -69,8 +86,23 @@ function generateErrorMinString(obj) {
                 obj[prop].maximum = obj[prop].minimum - 1;
                 obj[prop].minimum = obj[prop].maximum - 10;
             }
+
+            if (obj[prop].type === 'array') {
+                if (!obj[prop].minItems) {
+                    obj[prop].minItems = 1;
+                }
+                if (!obj[prop].maxItems) {
+                    // 根据公司的规范
+                    obj[prop].maxItems = 10;
+                }
+
+                // 生成异常测试用例
+                obj[prop].maxItems = (obj[prop].minItems - 1 > 0) ? obj[prop].minItems - 1 > 0 : 0;
+                obj[prop].minItems = (obj[prop].maxItems - 10 > 0) ? obj[prop].maxItems - 10 > 0 : 0;
+            }
+
             if (obj[prop].type === 'object') {
-                generateErrorMinString(obj[prop].properties);
+                generateErrorMin(obj[prop].properties);
             }
         }
     }
@@ -87,6 +119,6 @@ function generateErrorNull(obj) {
     }
 }
 
-exports.generateErrorMaxString = generateErrorMaxString;
-exports.generateErrorMinString = generateErrorMinString;
+exports.generateErrorMax = generateErrorMax;
+exports.generateErrorMin = generateErrorMin;
 exports.generateErrorNull = generateErrorNull;

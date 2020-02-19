@@ -528,7 +528,7 @@ class interfaceColController extends baseController {
             name: data.casename + '-max',
             data: yapi.commons.json_parse(interfaceData.req_body_other)
           };
-          boundaryUtils.generateErrorMaxString(maxJson.data);
+          boundaryUtils.generateErrorMax(maxJson.data);
           schemaArray.push(maxJson);
 
           // 生成 短 string 的 schema
@@ -536,7 +536,7 @@ class interfaceColController extends baseController {
             name: data.casename + '-min',
             data: yapi.commons.json_parse(interfaceData.req_body_other)
           };
-          boundaryUtils.generateErrorMinString(minStringJson.data);
+          boundaryUtils.generateErrorMin(minStringJson.data);
           schemaArray.push(minStringJson);
 
           // 根据 schema 生成数据

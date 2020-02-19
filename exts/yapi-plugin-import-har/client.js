@@ -1,12 +1,11 @@
 import { message } from 'antd';
 import URL from 'url';
-const GenerateSchema = require('generate-schema/src/schemas/json.js');
+const GenerateSchema = require('../../common/json.js');
 import { json_parse, unbase64 } from '../../common/utils.js';
 
 const transformJsonToSchema = json => {
   json = json || {};
   let jsonData = json_parse(json);
-
   jsonData = GenerateSchema(jsonData);
 
   let schemaData = JSON.stringify(jsonData);
@@ -137,7 +136,6 @@ function postman(importDataModule) {
     ];
     key = key || allKey;
     let res = {};
-
     let reqType = 'json',
       header;
     data.request.headers.forEach(item => {
@@ -159,7 +157,6 @@ function postman(importDataModule) {
         reqType = 'form';
       }
     });
-
     for (let item in key) {
       item = key[item];
       if (item === 'req_query') {

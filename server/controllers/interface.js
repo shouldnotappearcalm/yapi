@@ -1282,7 +1282,8 @@ class interfaceController extends baseController {
     let required = ctx.request.body.required;
 
     let res = yapi.commons.schemaToJson(schema, {
-      alwaysFakeOptionals: _.isUndefined(required) ? true : require
+      alwaysFakeOptionals: _.isUndefined(required) ? true : require,
+      useDefaultValue: true
     });
     // console.log('res',res)
     return (ctx.body = res);

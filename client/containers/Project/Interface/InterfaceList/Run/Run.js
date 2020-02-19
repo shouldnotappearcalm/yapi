@@ -59,13 +59,12 @@ export default class Run extends Component {
       
       // 生成各种边界 schema
       let schemaArray = [];
-
       // 生成 超长 string 的 schema
       let maxJson = {
         name: caseName + '-max',
         data: json5.parse(body)
       };
-      boundaryUtils.generateErrorMaxString(maxJson.data);
+      boundaryUtils.generateErrorMax(maxJson.data);
       schemaArray.push(maxJson);
 
       // 生成短 string 的 schema
@@ -73,7 +72,7 @@ export default class Run extends Component {
         name: caseName + '-min',
         data: json5.parse(body)
       };
-      boundaryUtils.generateErrorMinString(minStringJson.data);
+      boundaryUtils.generateErrorMin(minStringJson.data);
       schemaArray.push(minStringJson);
 
       // 生成
