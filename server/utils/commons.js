@@ -645,7 +645,7 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
   databaseInfo = JSON.parse(JSON.stringify(databaseInfo))
   yapi.commons.changeObjKeytoHump(databaseInfo);
 
-
+  
   const currentStorage = await getStorage(params.taskId || Math.random() + '');
   if (params.storageDict && typeof params.storageDict === 'object') {
     const storageKeys = Object.keys(params.storageDict);
@@ -674,7 +674,7 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
       unbase64: utils.unbase64,
       axios: axios
     }),
-    storage: params.storage,
+    storage: currentStorage,
     log: msg => {
       logs.push('log: ' + convertString(msg));
     },

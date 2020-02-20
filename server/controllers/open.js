@@ -408,7 +408,7 @@ class openController extends baseController {
     return result;
   }
 
-  async handleScriptTest(caseItemData, response, validRes, requestParams,utils,storage) {
+  async handleScriptTest(caseItemData, response, validRes, requestParams, utils, storage) {
     let curEnv = _.find(caseItemData.env, item => item.name === caseItemData.case_env);
 
       try {
@@ -419,6 +419,7 @@ class openController extends baseController {
         utils:utils,
         storage:storage,
         params: requestParams,
+        taskId: this.getUid(),
         project_id: caseItemData.project_id,
         env_id: curEnv._id.toString()
       }, caseItemData.col_id, caseItemData.interface_id, this.getUid());
