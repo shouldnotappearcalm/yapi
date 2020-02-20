@@ -34,7 +34,9 @@ function simpleJsonPathParse(key, json) {
       break;
     }
   }
-
+  if (typeof json === 'object') {
+    json = JSON.stringify(json)
+  }
   return json;
 }
 

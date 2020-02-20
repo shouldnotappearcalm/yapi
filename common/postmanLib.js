@@ -319,7 +319,6 @@ async function crossRequest(defaultOptions, preScript, afterScript,case_pre_scri
   }
 
   let data;
-
   if (isNode) {
     data = await httpRequestByNode(options);
     data.req = options;
