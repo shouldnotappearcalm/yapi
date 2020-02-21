@@ -883,5 +883,5 @@ exports.createWebAPIRequest = async function (ops) {
   if (response.status > 400) {
     throw new Error('获取数据失败，请确认 swaggerUrl 是否正确')
   }
-  return "swagger地址可以访问";
+  return response.data;
 }
