@@ -47,6 +47,14 @@ const Panel = Collapse.Panel;
 
 export const InsertCodeMap = [
   {
+    code: "let res = await execSQL(defaultUtil.format(\"select * from db_xx.t_xx where c_id='%s'\", body.id))",
+    title: '执行SQL'
+  },
+  {
+    code: 'globalObj.',
+    title: '获取当前环境global变量'
+  },
+  {
     code: 'storage.getItem()',
     title: '从storage取值'
   },

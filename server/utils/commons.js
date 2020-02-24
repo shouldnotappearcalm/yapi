@@ -634,10 +634,21 @@ function convertString(variable) {
   }
 }
 
+async function getProjectData(projectId) {
+  let projectInst = yapi.getInst(projectModel)
+  return await projectInst.get(projectId)
+}
 
 exports.runCaseScript = async function runCaseScript(params, colId, interfaceId) {
   const colInst = yapi.getInst(interfaceColModel);
   let colData = await colInst.get(colId);
+
+  let projectData = await getProjectData(params.project_id)
+  let curEnvObj = projectData.env.filter(env => env._id == params.env_id)[0];
+  let curGlobalObj = {};
+  if (curEnvObj) {
+    curEnvObj.global.forEach(globalItem => curGlobalObj[globalItem.name] = globalItem.value)
+  }
 
   // 获取当前环境对应的数据库连接配置
   const databaseInfoInst = yapi.getInst(databaseInfoModel);
@@ -660,6 +671,7 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
     records: params.records,
     params: params.params,
     defaultUtil: defaultUtil,
+    globalObj: curGlobalObj,
     utils: Object.freeze({
       _: _,
       CryptoJS: CryptoJS,
@@ -755,6 +767,26 @@ ${JSON.stringify(schema, null, 2)}`)
     delete result.utils;
     delete result.storage;
     delete result.assert;
+    // 写回projectData
+    if (curEnvObj && curGlobalObj) {
+      let globalArray = [];
+      for (let key in curGlobalObj) {
+        globalArray.push({
+          name: key,
+          value: curGlobalObj[key]
+        })
+      }
+      projectData.env.map(envItem => {
+        if (envItem._id == curEnvObj._id) {
+          envItem.global = globalArray
+        }
+        return envItem
+      })
+      // 写入数据库
+      let projectInst = yapi.getInst(projectModel)
+      await projectInst.up(projectData._id, projectData)
+    }
+
     return yapi.commons.resReturn(result);
   } catch (err) {
     //logs.push(convertString(err));
