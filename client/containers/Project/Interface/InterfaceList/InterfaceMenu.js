@@ -432,7 +432,7 @@ class InterfaceMenu extends Component {
         axios.post('/api/interface/up_cat', {catid, parent_id}).then();
       } else { //同分类目录下:
         let changes = [];
-        if (e.node.props.dragOver) {//如果不是在gap上，则进行排序
+        if (e.dropToGap) {//如果不是在gap上，则进行排序
           if (dropCatItem.parent_id === -1) {
             changes = arrayChangeIndex(list, dragIndex - 1, dropIndex - 1);
           } else {

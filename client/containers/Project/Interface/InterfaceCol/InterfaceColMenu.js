@@ -615,7 +615,8 @@ export default class InterfaceColMenu extends Component {
         axios.post('/api/col/up_col', {col_id, parent_id}).then();
       } else { //同分类目录下:
         let changes = [];
-        if (e.node.props.dragOver) {//如果不是在gap上，则进行排序
+        // if (e.node.props.dragOver) {
+        if (e.dropToGap) {//如果不是在gap上，则进行排序
           if (dropColItem.parent_id === -1) {
             changes = arrayChangeIndex(interfaceColList, dragIndex - 1, dropIndex - 1);
           } else {
