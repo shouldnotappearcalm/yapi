@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charSet="UTF-8"/><meta content="text/html; charset=utf-8" http-equiv="Content-Type"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black"/><link rel="apple-touch-icon" sizes="180x180" href="../ydoc/images/apple-touch-icon.png"/><link rel="icon" type="image/png" sizes="32x32" href="../ydoc/images/favicon-32x32.png"/><link rel="icon" type="image/png" sizes="16x16" href="../ydoc/images/favicon-16x16.png"/><link rel="manifest" href="../ydoc/images/manifest.json"/><link rel="mask-icon" href="../ydoc/images/safari-pinned-tab.svg" color="#5bbad5"/><meta name="theme-color" content="#ffffff"/><meta http-equiv="Cache-Control" content="no-transform"/><meta http-equiv="Cache-Control" content="no-siteapp"/><title>YAPI 断言执行 SQL-教程</title><link rel="stylesheet" href="../ydoc/styles/style.css"/><meta name="author" content="ymfe"/><meta name="keywords" content="api管理,接口管理,接口文档,api文档"/><meta name="description" content="YApi 是高效、易用、功能强大的 api 管理平台，旨在为开发、产品、测试人员提供更优雅的接口管理服务。可以帮助开发者轻松创建、发布、维护 API，YApi 还为用户提供了优秀的交互体验，开发人员只需利用平台提供的接口数据写入工具以及简单的点击操作就可以实现接口的管理"/><meta id="releativePath" content=".."/><link rel="stylesheet" href="../ydoc/ydoc-plugin-search/search.css"/><link rel="stylesheet" href="../ydoc/ydoc-plugin-search/search.css"/><link rel="stylesheet" href="../ydoc/ydoc-plugin-img-view/imgView.css"/><link rel="stylesheet" href="../web.css"/></head><body><div class="g-doc"><div class="m-aside"><div class="m-summary" id="js-menu"><div class="m-summary-content" id="js-menu-content"><div class="m-summary-block"><div class="m-summary-title">快速上手</div><ul class="m-summary-list indent"><li class="item"><a href="index.html" class="href">认识YApi</a></li><li class="item"><a href="quickstart.html" class="href">创建第一个API</a></li></ul></div><div class="m-summary-block"><div class="m-summary-title">进阶篇</div><ul class="m-summary-list indent"><li class="item"><a href="manage.html" class="href">权限</a></li><li class="item"><div class="m-summary-block"><a href="project.html" class="href">项目操作</a><ul class="m-summary-list indent"><li class="item"><a href="project.html#%e5%9f%ba%e6%9c%ac%e8%ae%be%e7%bd%ae" class="href">基本设置</a></li><li class="item"><a href="project.html#%e6%96%b0%e5%bb%ba%e9%a1%b9%e7%9b%ae" class="href">新建项目</a></li><li class="item"><a href="project.html#%e4%bf%ae%e6%94%b9%e9%a1%b9%e7%9b%ae" class="href">修改项目</a></li><li class="item"><a href="project.html#%e9%a1%b9%e7%9b%ae%e8%bf%81%e7%a7%bb" class="href">项目迁移</a></li><li class="item"><a href="project.html#%e9%a1%b9%e7%9b%ae%e6%8b%b7%e8%b4%9d" class="href">项目拷贝</a></li><li class="item"><a href="project.html#%e9%85%8d%e7%bd%ae%e7%8e%af%e5%a2%83" class="href">配置环境</a></li><li class="item"><a href="project.html#%e8%af%b7%e6%b1%82%e9%85%8d%e7%bd%ae" class="href">请求配置</a></li><li class="item"><a href="project.html#token" class="href">token配置</a></li><li class="item"><a href="project.html#%e5%85%a8%e5%b1%80mock" class="href">全局mock</a></li></ul></div></li><li class="item"><div class="m-summary-block"><a href="api.html" class="href">接口操作</a><ul class="m-summary-list indent"><li class="item"><a href="api.html#%e6%8e%a5%e5%8f%a3%e9%85%8d%e7%bd%ae" class="href">接口设置</a></li><li class="item"><a href="api.html#%e6%8e%a5%e5%8f%a3%e8%bf%90%e8%a1%8c" class="href">接口运行</a></li></ul></div></li><li class="item"><div class="m-summary-block"><a href="mock.html" class="href">数据Mock</a><ul class="m-summary-list indent"><li class="item"><a href="mock.html#方式1.-mockjs" class="href">方式1. mockjs</a></li><li class="item"><a href="mock.html#方式2.-json-schema" class="href">方式2. json-schema</a></li><li class="item"><a href="mock.html#如何使用-mock" class="href">如何使用</a></li><li class="item"><a href="mock.html#mock%e8%af%b7%e6%b1%82%e4%b8%a5%e6%a0%bc%e6%a8%a1%e5%bc%8f" class="href">严格模式</a></li></ul></div></li><li class="item"><div class="m-summary-block"><a href="adv_mock.html" class="href">高级Mock</a><ul class="m-summary-list indent"><li class="item"><a href="adv_mock.html#mock-期望" class="href">Mock 期望</a></li><li class="item"><a href="adv_mock.html#自定义-mock-脚本" class="href">自定义脚本</a></li></ul></div></li><li class="item"><a href="chromeCORS.html" class="href">Chrome跨域</a></li><li class="item"><div class="m-summary-block"><a href="case.html" class="href">自动化测试</a><ul class="m-summary-list indent"><li class="item"><a href="case.html#%e7%ac%ac%e4%b8%80%e6%ad%a5%ef%bc%8c%e6%b5%8b%e8%af%95%e9%9b%86%e5%90%88" class="href">第一步，测试集合</a></li><li class="item"><a href="case.html#%e7%ac%ac%e4%ba%8c%e6%ad%a5%ef%bc%8c%e7%bc%96%e8%be%91%e6%b5%8b%e8%af%95%e7%94%a8%e4%be%8b" class="href">第二步，编辑测试用例</a></li><li class="item"><a href="case.html#%e7%ac%ac%e4%b8%89%e6%ad%a5%ef%bc%8c%e8%bf%90%e8%a1%8c%e8%87%aa%e5%8a%a8%e5%8c%96%e6%b5%8b%e8%af%95" class="href">第三步，运行自动化测试</a></li><li class="item"><a href="case.html#%e6%96%ad%e8%a8%80%e8%84%9a%e6%9c%ac%e5%85%ac%e5%85%b1%e5%8f%98%e9%87%8f" class="href">断言脚本公共变量</a></li><li class="item"><a href="case.html#%e6%9c%8d%e5%8a%a1%e7%ab%af%e8%87%aa%e5%8a%a8%e5%8c%96%e6%b5%8b%e8%af%95" class="href">服务端自动化测试</a></li><li class="item"><a href="" class="href">断言执行 SQL</a></li></ul></div></li><li class="item"><div class="m-summary-block"><a href="data.html" class="href">数据导入</a><ul class="m-summary-list indent"><li class="item"><a href="data.html#postman-数据导入" class="href">Postman 数据导入</a></li><li class="item"><a href="data.html#har-数据导入" class="href">HAR 数据导入</a></li><li class="item"><a href="data.html#swagger-数据导入" class="href">Swagger 数据导入</a></li><li class="item"><a href="data.html#yapi%e6%8e%a5%e5%8f%a3json%e6%95%b0%e6%8d%ae%e5%af%bc%e5%85%a5" class="href">JSON 数据导入</a></li><li class="item"><a href="data.html#%e9%80%9a%e8%bf%87%e5%91%bd%e4%bb%a4%e8%a1%8c%e5%af%bc%e5%85%a5%e6%8e%a5%e5%8f%a3%e6%95%b0%e6%8d%ae" class="href">通过命令行导入接口数据</a></li></ul></div></li><li class="item"><a href="export-data.html" class="href">数据导出</a></li></ul></div><div class="m-summary-block"><div class="m-summary-title">自定义</div><ul class="m-summary-list indent"><li class="item"><div class="m-summary-block"><a href="plugin-index.html" class="href">插件</a><ul class="m-summary-list indent"><li class="item"><a href="plugin-dev.html" class="href">插件开发</a></li><li class="item"><a href="plugin-list.html" class="href">插件列表</a></li><li class="item"><a href="plugin-hooks.html" class="href">钩子</a></li></ul></div></li><li class="item"><a href="redev.html" class="href">二次开发</a></li></ul></div><div class="m-summary-block"><ul class="m-summary-list"><li class="item"><a href="qa.html" class="href">常见问题解答</a></li><li class="item"><a href="CHANGELOG.html" class="href">版本记录</a></li></ul></div></div></div><div class="m-summary-switch" id="js-summary-switch"><svg viewBox="0 0 926.23699 573.74994" version="1.1" x="0px" y="0px" width="15" height="15" class="bottom"><g transform="translate(904.92214,-879.1482)"><path d="m -673.67664,1221.6502 -231.2455,-231.24803 55.6165,-55.627 c 30.5891,-30.59485 56.1806,-55.627 56.8701,-55.627 0.6894,0 79.8637,78.60862 175.9427,174.68583 l 174.6892,174.6858 174.6892,-174.6858 c 96.079,-96.07721 175.253196,-174.68583 175.942696,-174.68583 0.6895,0 26.281,25.03215 56.8701,55.627 l 55.6165,55.627 -231.245496,231.24803 c -127.185,127.1864-231.5279,231.248 -231.873,231.248 -0.3451,0 -104.688,-104.0616 -231.873,-231.248 z" fill="#fff"></path></g></svg><svg viewBox="0 0 926.23699 573.74994" version="1.1" x="0px" y="0px" width="15" height="15" class="top"><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="aaa" fill="#fff" fill-rule="nonzero"><path d="M231.2455,342.502 L0,111.25397 L55.6165,55.62697 C86.2056,25.03212 111.7971,-2.99999998e-05 112.4866,-2.99999998e-05 C113.176,-2.99999998e-05 192.3503,78.60859 288.4293,174.6858 L463.1185,349.3716 L637.8077,174.6858 C733.8867,78.60859 813.060896,-2.99999997e-05 813.750396,-2.99999997e-05 C814.439896,-2.99999997e-05 840.031396,25.03212 870.620496,55.62697 L926.236996,111.25397 L694.9915,342.502 C567.8065,469.6884 463.4636,573.75 463.1185,573.75 C462.7734,573.75 358.4305,469.6884 231.2455,342.502 Z" id="Shape" transform="translate(463.118498, 286.874985) scale(1, -1) translate(-463.118498, -286.874985) "></path></g></g></svg></div></div><div class="m-main" id="js-panel"><header class="m-header" id="js-header"><div class="m-header-title js-logo"><a href="../index.html" target="_self"><img class="logo" width="36" src="images/logo_header@2x.png"/><h6 class="name">YApi</h6></a></div><div><div class="m-search">
+      <div class="icon">&#xf0fd;</div>
+      <input type="text" class="input js-input" placeholder="搜索" />
+      <div class="m-search-result js-search-result"></div>
+    </div>
+<div class="m-search">
+      <div class="icon">&#xf0fd;</div>
+      <input type="text" class="input js-input" placeholder="搜索" />
+      <div class="m-search-result js-search-result"></div>
+    </div></div><nav class="m-header-nav js-nav"><ul class="m-header-items"><li class="item active"><a class="href" href="index.html">教程</a></li><li class="item "><a class="href" href="../devops/index.html">内网部署</a></li><li class="item "><a class="href" href="../openapi.html">开放Api</a></li></ul></nav><div id="js-nav-btn" class="m-header-btn ui-font-ydoc"></div></header><div class="m-content" id="js-content"><div id="markdown-body" class="m-content-container markdown-body"><h1><code>YAPI</code> 断言执行 <code>SQL</code></h1>
+<h2 id="sql-runner-平台使用"><code>SQL-Runner</code> 平台使用</h2>
+<p><a href="http://172.25.17.59:7111/html/login.html" target="_blank">SQL Runner 平台地址</a></p>
+<p>为什么有一个这样的平台呢，主要是因为考虑到大家后期会在断言里面执行 <code>SQL</code> 并且用返回结果进行一些操作，但是不熟悉 <code>SQL</code> 结果的话使用起来可能会有很多误解，</p>
+<h2 id="登录注册">登录注册</h2>
+<p>这个就不用详加解释了，有帐号的直接登录，没有帐号的先注册再登录</p>
+<h2 id="数据库连接页面">数据库连接页面</h2>
+<p>保存你的数据库连接</p>
+<h2 id="测试执行-sql-页面">测试执行 <code>SQL</code> 页面</h2>
+<p>可以看到我们执行的 <code>SQL</code> 返回值是 <code>JSON</code> 格式的</p>
+<ul>
+<li><code>row</code>： 当前 <code>SQL</code> 执行后的返回行数，如果是 <code>insert</code>、<code>update</code>、<code>delete</code> 就是影响的行数</li>
+<li><code>dataArray</code>: 当前 <code>SQL</code> 执行后的返回结果，用于 <code>select</code> 语句，数组形式</li>
+</ul>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KieJUzJo.png" alt="image.png"></p>
+<h2 id="yapi-端的使用"><code>YAPI</code> 端的使用</h2>
+<p><a href="http://yapi.thunisoft.com/" target="_blank">YAPI 平台地址</a></p>
+<h3 id="yapi-端的使用-配置项目环境的数据库连接地址">配置项目环境的数据库连接地址</h3>
+<p>设置 -&gt; 数据库连接配置</p>
+<ul>
+<li>环境列表： 环境列表对应环境配置中的多个环境，一个环境对应一个数据库地址</li>
+<li>数据库类型：
+<ul>
+<li>PostgreSQL</li>
+<li>ArteryBase</li>
+<li>MySQL</li>
+<li>Sybase</li>
+<li>Oracle</li>
+<li>达梦</li>
+<li>SQL Server</li>
+<li>人大金仓</li>
+</ul>
+</li>
+<li>数据库 <code>IP</code>： 数据库的主机地址</li>
+<li>数据库端口</li>
+<li>数据库名： 你要连接的数据库名字</li>
+<li>数据库用户名</li>
+<li>数据库密码</li>
+</ul>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9Kilck83N.png" alt="image.png"></p>
+<h3 id="yapi-端的使用-在断言中执行-sql">在断言中执行 <code>SQL</code></h3>
+<h4>1.首先确定你选择的运行环境是否已经存在对应的数据库环境</h4>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9Kiqn98RF.png" alt="image.png"></p>
+<h4>2.测试用例的断言</h4>
+<h5>如何执行自己的 `SQL</h5>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KlHLKS9I.png" alt="image.png"></p>
+<ul>
+<li>下面的断言中执行的 <code>SQL</code> 为 <code>select * from db_lottery.t_lottery_config where c_id = '12122121221'</code>, <code>c_id</code> 的值为当前测试用例返回值的 <code>id</code> 属性，所以为 <code>body.id</code>。</li>
+<li><code>defaultUtil.format(&quot;select * from db_lottery.t_lottery_config where c_id='%s'&quot;, body.id)</code>，这句代码就是一个替换占位符的操作，使用 <code>body.id</code> 值替换 <code>SQL</code> 语句中的占位符，<code>defaultUtil</code> 是默认引入的一个对象，更多的方法使用请参考 <a href="https://nodejs.org/api/util.html" target="_blank">文档</a></li>
+<li><code>await execSQL()</code>，这句代码就是在你配置的数据库中去执行 <code>SQL</code>，方法名就是 <code>execSQL</code>，同时必须使用 <code>await</code> 关键字阻塞等待 <code>SQL</code> 的执行完成</li>
+</ul>
+<pre><code class="language-JavaScript">let res = await execSQL(defaultUtil.format(&#x22;select * from db_lottery.t_lottery_config where c_id=&#x27;%s&#x27;&#x22;, body.id))
+</code></pre>
+<h5>如何使用数据库结果的返回值</h5>
+<p>如上文所示我们拿到了自己的 <code>SQL</code> 执行后的结果，如果知道返回的数据结果格式和怎么使用呢，前文提到的 <code>SQL Runner</code> 就可以让我们知道返回的格式。</p>
+<pre><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"row"</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+  <span class="token property">"dataArray"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">"dt_create_time"</span><span class="token operator">:</span> <span class="token string">"2019-11-28T09:44:08.000+0000"</span><span class="token punctuation">,</span>
+      <span class="token property">"c_value"</span><span class="token operator">:</span> <span class="token string">"2020-1-12 13:20:00"</span><span class="token punctuation">,</span>
+      <span class="token property">"c_id"</span><span class="token operator">:</span> <span class="token string">"f56ea50a8dca4e6baab51b8962f31078"</span><span class="token punctuation">,</span>
+      <span class="token property">"dt_update_time"</span><span class="token operator">:</span> <span class="token string">"2019-11-28T09:44:10.000+0000"</span><span class="token punctuation">,</span>
+      <span class="token property">"c_key"</span><span class="token operator">:</span> <span class="token string">"lottery.registration.end"</span><span class="token punctuation">,</span>
+      <span class="token property">"c_description"</span><span class="token operator">:</span> <span class="token string">"测试描述"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KldxuP3I.png" alt="image.png"></p>
+<p>前面定义了 <code>let res = await execSQL(xxxxx)</code>，<code>res</code> 变量就保存了我们的返回结果,断言就可以像下面这样写</p>
+<pre><code class="language-JavaScript">// &#x83B7;&#x53D6;&#x884C;&#x6570;
+let row = res.row;
+
+// &#x5224;&#x65AD;&#x884C;&#x6570;&#x662F;&#x4E0D;&#x662F; 1
+assert.equal(row, 1)
+
+// &#x83B7;&#x53D6; c_id
+let cId= res.dataArray[0].c_id;
+
+// &#x5224;&#x65AD; c_id &#x662F;&#x4E0D;&#x662F;&#x6D4B;&#x8BD5;&#x7528;&#x4F8B;&#x8FD4;&#x56DE;&#x503C;&#x7684; id
+assert.equal(body.id, cId)
+
+</code></pre>
+<blockquote>
+<p>断言中 <code>assert</code> 的更多用法请参考 <a href="http://nodejs.cn/api/assert.html" target="_blank">文档</a></p>
+</blockquote>
+<blockquote>
+<p>更多默认对象使用请参考 <a href="http://172.25.17.6:9999/documents/case.html#%e6%96%ad%e8%a8%80%e8%84%9a%e6%9c%ac%e5%85%ac%e5%85%b1%e5%8f%98%e9%87%8f" target="_blank">文档</a>，其中重点使用参数</p>
+<ul>
+<li><code>params</code>： <code>http request params</code>, 合并了 <code>query</code> 和 <code>body</code>, <code>path</code> 中的变量也在其中</li>
+<li><code>body</code>： 返回 <code>response body</code></li>
+<li><code>header</code>： 返回 <code>response header</code></li>
+<li><code>records</code>： 记录的 <code>http</code> 请求信息，假设需要获取 <code>key</code> 为 <code>555</code> 的接口参数或者响应数据，可通过 <code>records[555].params</code> 或 <code>records[555].body</code> 获取</li>
+</ul>
+</blockquote>
+<h2 id="更多使用示例">更多使用示例</h2>
+<h3 id="更多使用示例-1.-使用请求路径中的-path-变量">1. 使用请求路径中的 <code>path</code> 变量</h3>
+<p>这里我 <code>path</code> 中有一个变量名为 <code>id</code> 的变量，就可以使用 <code>params.id</code> 进行获取变量进行使用</p>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KouoPkUj.png" alt="image.png"></p>
+<h3 id="更多使用示例-2.-使用请求的-query-parameters-中的变量">2. 使用请求的 <code>QUERY PARAMETERS</code> 中的变量</h3>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KoyiE8VF.png" alt="image.png"></p>
+<h3 id="更多使用示例-3.-使用-request-body-中的变量">3. 使用 <code>Request Body</code> 中的变量</h3>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9Kp1xr2sz.png" alt="image.png"></p>
+<h3 id="更多使用示例-4.-使用上一个用例的请求参数">4. 使用上一个用例的请求参数</h3>
+<p>找到你需要的用例的唯一标识 <code>Key</code>，我这里打算选取第一个用例 <code>4831</code> 的 <code>Request Params</code> 中的变量 <code>id2</code> 作为下一个用例断言的变量值</p>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KpB1vhi5.png" alt="image.png"></p>
+<p>在第二个用例的断言中使用</p>
+<pre><code class="language-JavaScript">records[4831].params.id2)
+</code></pre>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KpEdAoCn.png" alt="image.png"></p>
+<h4>3.更多</h4>
+<p>目前 <code>YAPI</code> 的断言如果 <code>assert</code> 等如果都成功了，测试报告中的验证结果就不会打出来更多的日志，所以我测试 <code>SQL</code> 的时候写的 <code>assert.equal(status, 220)</code>，这样会在报告中看到我们执行的 sql 内容。</p>
+<p><img src="http://bed.thunisoft.com:9000/ibed/2020/02/14/9KpHoBWwD.png" alt="image.png"></p>
+</div><div class="m-content-container m-paging"><div class="m-paging-prev m-paging-item"><a href="case.html" class="href"><span class="ui-font-ydoc"></span>自动化测试</a></div><div class="m-paging-next m-paging-item"><a href="data.html" class="href">数据导入<span class="ui-font-ydoc"></span></a></div></div></div></div></div><div><div class="m-mask js-mask">
+    <div class="container">
+      <img src="" alt="" class="img js-mask-img" />
+    </div>
+    </div></div><script>
+    var $content = document.getElementById('js-content');
+    var $summaryItems = Array.prototype.slice.call(document.querySelectorAll('#js-menu .href'));
+    var $menu = document.getElementById('js-menu');
+    if (sessionStorage.prevPathname) {
+      sessionStorage.setItem('prevPrevPathname', sessionStorage.prevPathname);
+      sessionStorage.setItem('prevPrevMenuScrollTop', sessionStorage.prevMenuScrollTop);
+      sessionStorage.setItem('prevPrevContentScrollTop', sessionStorage.prevContentScrollTop);
+    }
+    if (sessionStorage.locationPathname) {
+      sessionStorage.setItem('prevPathname', sessionStorage.locationPathname);
+      sessionStorage.setItem('prevMenuScrollTop', sessionStorage.menuScrollTop);
+      sessionStorage.setItem('prevContentScrollTop', sessionStorage.contentScrollTop);
+    }
+    if ($menu && sessionStorage.menuScrollTop) {
+		  $menu.scrollTop = sessionStorage.menuScrollTop;
+    }
+    // 刷新页面但不切换 pathname 的时候，内容区恢复到记忆的高度
+    if ($content && sessionStorage.contentScrollTop && window.location.pathname == sessionStorage.locationPathname) {
+      $content.scrollTop = sessionStorage.contentScrollTop;
+    } else if (sessionStorage.prevPrevPathname && sessionStorage.prevPrevPathname === window.location.pathname) {
+      if ($menu && sessionStorage.prevPrevMenuScrollTop) {
+        $menu.scrollTop = sessionStorage.prevPrevMenuScrollTop;
+      }
+      if ($content && sessionStorage.prevPrevContentScrollTop) {
+        $content.scrollTop = sessionStorage.prevPrevContentScrollTop;
+      }
+    }
+    sessionStorage.setItem('locationPathname', window.location.pathname);
+    </script><script src="../ydoc/scripts/plugins/dollar.min.js"></script><script src="../ydoc/scripts/plugins/responsive-nav.min.js"></script><script src="../ydoc/scripts/plugins/slideout.min.js"></script><script src="../ydoc/scripts/app.js"></script><script src="../ydoc/ydoc-plugin-search/core.js"></script><script src="../ydoc/ydoc-plugin-search/search.js"></script><script src="../ydoc/ydoc-plugin-search/core.js"></script><script src="../ydoc/ydoc-plugin-search/search.js"></script><script src="../ydoc/ydoc-plugin-img-view/imgView.js"></script><script src="../search_json.js"></script><script src="../search_json.js"></script></body></html>

@@ -67,6 +67,15 @@ class Content extends Component {
     }
   }
 
+  handleTab(search) {
+    if (search && search.indexOf('targetTab=activity') != -1) {
+      this.setState({
+        curtab: 'activity',
+        nextTab: 'activity'
+      });
+    }
+  }
+
   /**
    * 取消上一次的请求
    */
@@ -91,6 +100,9 @@ class Content extends Component {
       })
     ]).then(() => {
       this.cancelSourceSet.delete(cancelSource);
+      if (this.props.location && this.props.location.search) {
+        this.handleTab(this.props.location.search);
+      }
     });
 
     this.setState({

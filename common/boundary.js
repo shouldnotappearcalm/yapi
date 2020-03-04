@@ -1,3 +1,5 @@
+const Mock = require('mockjs');
+
 function generateErrorMax(obj) {
     if (obj && obj.type && obj.type === 'object') {
         generateErrorMax(obj.properties);
@@ -54,6 +56,27 @@ function generateErrorMax(obj) {
     }
 }
 
+
+function generateRegExpMock(obj) {
+    if (obj && obj.type && obj.type === 'object') {
+        generateRegExpMock(obj.properties);
+    } else {
+        for (let prop in obj) {
+
+            if (obj[prop].type === 'array') {
+            }
+
+            if (obj[prop].type === 'object') {
+                generateRegExpMock(obj[prop].properties);
+            }
+            // 如入果有正则表达式的情况
+            if (obj[prop].mock && obj[prop].mock.mock && obj[prop].mock.mock.indexOf('@regexp') != -1) {
+                
+            }
+        }
+    }
+}
+ 
 function generateErrorMin(obj) {
     if (obj && obj.type && obj.type === 'object') {
         generateErrorMin(obj.properties);
@@ -118,6 +141,8 @@ function generateErrorNull(obj) {
         }
     }
 }
+
+const regExp = [];
 
 exports.generateErrorMax = generateErrorMax;
 exports.generateErrorMin = generateErrorMin;

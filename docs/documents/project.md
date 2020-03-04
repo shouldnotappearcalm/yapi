@@ -237,7 +237,7 @@ context.promise = new Promise(function(resolve) {
 
 每个项目都有唯一的标识 token，用户可以使用这个 token 值来请求 openapi。
 
-[openapi 文档地址](https://hellosean1025.github.io/yapi/openapi.html)
+[openapi 文档地址](http://172.25.17.6:9999/openapi.html)
 
 
 ## 全局mock

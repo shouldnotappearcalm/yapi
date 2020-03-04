@@ -36,15 +36,15 @@ class interfaceColController extends baseController {
         }
       }
       let islist = ctx.params.islist && ctx.params.islist === '1' ? true : false;
-      let result = await this.getCol(id,islist);
+      let result = await this.getCol(id, islist);
       ctx.body = yapi.commons.resReturn(result);
     } catch (e) {
       ctx.body = yapi.commons.resReturn(null, 402, e.message);
     }
   }
 
-  async getCol(project_id,islist,mycatid) {
-    let result= yapi.commons.getCol(project_id,islist,mycatid);
+  async getCol(project_id, islist, mycatid) {
+    let result = yapi.commons.getCol(project_id, islist, mycatid);
     return result;
   }
 
@@ -99,7 +99,7 @@ class interfaceColController extends baseController {
       yapi.commons.saveLog({
         content: `<a href="/user/profile/${this.getUid()}">${username}</a> 添加了接口集 <a href="/project/${
           params.project_id
-        }/interface/col/${result._id}">${params.name}</a>`,
+          }/interface/col/${result._id}">${params.name}</a>`,
         type: 'project',
         uid: this.getUid(),
         username: username,
@@ -125,7 +125,7 @@ class interfaceColController extends baseController {
   async getCaseList(ctx) {
     let catids = ctx.query.col_id ? ctx.query.col_id.split(',') : [];
 
-    let handleReport=json=> {
+    let handleReport = json => {
       try {
         return JSON.parse(json);
       } catch (e) {
@@ -134,9 +134,8 @@ class interfaceColController extends baseController {
     }
 
     try {
-      let alldata={};
-      for(let i=0;i<catids.length;i++)
-      {
+      let alldata = {};
+      for (let i = 0; i < catids.length; i++) {
         let id = Number(catids[i]);
         if (!id || id == 0) {
           return (ctx.body = yapi.commons.resReturn(null, 407, 'col_id不能为空'));
@@ -151,26 +150,60 @@ class interfaceColController extends baseController {
           }
         }
 
-         let ret= await yapi.commons.getCaseList(id);
-        let test_report=handleReport(ret.colData.test_report);
-        if(ret.errcode!==0){
-          alldata=ret;
+        let ret = await yapi.commons.getCaseList(id);
+        let test_report = handleReport(ret.colData.test_report);
+        if (ret.errcode !== 0) {
+          alldata = ret;
           break;
-        }else{
-          alldata.data=alldata.data?alldata.data.concat(ret.data):ret.data;
-          typeof alldata.test_report==='undefined'?(alldata.test_report={}):'';
-         Object.assign(alldata.test_report,test_report)
-        //  console.log({test_report});
+        } else {
+          alldata.data = alldata.data ? alldata.data.concat(ret.data) : ret.data;
+          typeof alldata.test_report === 'undefined' ? (alldata.test_report = {}) : '';
+          Object.assign(alldata.test_report, test_report)
+          //  console.log({test_report});
         }
       }
 
       let ctxBody = yapi.commons.resReturn(alldata.data);
       ctxBody.test_report = alldata.test_report;
-      ctx.body=ctxBody;
-    //  console.log({'ctx.body':ctx.body});
+      ctx.body = ctxBody;
+      //  console.log({'ctx.body':ctx.body});
     } catch (e) {
       ctx.body = yapi.commons.resReturn(null, 402, e.message);
     }
+  }
+
+  /**
+   * 替换一个测试集合下面的所有变量为目标值
+   * @param {*} ctx 
+   */
+  async replaceVariables(ctx) {
+    let params = ctx.request.body;
+    params = yapi.commons.handleParams(params, {
+      colId: 'string',
+      originValue: 'string',
+      targetValue: 'string'
+    });
+    let caseList = await yapi.commons.getCaseList(params.colId);
+
+    let regExp = new RegExp(params.originValue, 'g');
+    //await Promise.all();
+    caseList.data.forEach(async caseItem => {
+      if (caseItem.req_body_other) {
+        caseItem.req_body_other = caseItem.req_body_other.replace(regExp, params.targetValue);
+      }
+      let props = ['req_params', 'req_headers', 'req_query', 'req_body_form'];
+      props.forEach(prop => {
+        caseItem[prop] = Array.from(caseItem[prop]);
+        caseItem[prop].forEach(propValues => {
+          if (propValues.value == params.originValue) {
+            propValues.value = params.targetValue;
+          }
+        })
+      });
+
+      await this.caseModel.up(caseItem._id, caseItem);
+    })
+    ctx.body = yapi.commons.resReturn("替换成功");
   }
 
   /**
@@ -188,8 +221,8 @@ class interfaceColController extends baseController {
 
     try {
       let projectEnvList = [];
-      let envProjectIdList=[];
-      for(let i=0;i<catids.length;i++) {
+      let envProjectIdList = [];
+      for (let i = 0; i < catids.length; i++) {
         let id = Number(catids[i]);
         if (!id || id == 0) {
           return (ctx.body = yapi.commons.resReturn(null, 407, 'col_id不能为空'));
@@ -208,7 +241,7 @@ class interfaceColController extends baseController {
         // 对projectList 进行去重处理
 
         projectList = this.unique(projectList, 'project_id');
-        projectList.forEach(id=>{envProjectIdList.includes(id)?'':envProjectIdList.push(id)});
+        projectList.forEach(id => { envProjectIdList.includes(id) ? '' : envProjectIdList.push(id) });
         // 遍历projectList 找到项目和env
 
 
@@ -282,7 +315,8 @@ class interfaceColController extends baseController {
         body = typeof body === 'object' ? body : {};
         if (data.res_body_is_json_schema) {
           body = yapi.commons.schemaToJson(body, {
-            alwaysFakeOptionals: true
+            alwaysFakeOptionals: true,
+            useDefaultValue: true
           });
         }
         item.body = Object.assign({}, body);
@@ -294,7 +328,8 @@ class interfaceColController extends baseController {
           bodyParams = yapi.commons.json_parse(data.req_body_other);
           if (data.req_body_is_json_schema) {
             bodyParams = yapi.commons.schemaToJson(bodyParams, {
-              alwaysFakeOptionals: true
+              alwaysFakeOptionals: true,
+              useDefaultValue: true
             });
           }
           bodyParams = typeof bodyParams === 'object' ? bodyParams : {};
@@ -374,9 +409,9 @@ class interfaceColController extends baseController {
         yapi.commons.saveLog({
           content: `<a href="/user/profile/${this.getUid()}">${username}</a> 在接口集 <a href="/project/${
             params.project_id
-          }/interface/col/${params.col_id}">${col.name}</a> 下添加了测试用例 <a href="/project/${
+            }/interface/col/${params.col_id}">${col.name}</a> 下添加了测试用例 <a href="/project/${
             params.project_id
-          }/interface/case/${result._id}">${params.casename}</a>`,
+            }/interface/case/${result._id}">${params.casename}</a>`,
           type: 'project',
           uid: this.getUid(),
           username: username,
@@ -437,7 +472,8 @@ class interfaceColController extends baseController {
         ) {
           let req_body_other = yapi.commons.json_parse(interfaceData.req_body_other);
           req_body_other = yapi.commons.schemaToJson(req_body_other, {
-            alwaysFakeOptionals: true
+            alwaysFakeOptionals: true,
+            useDefaultValue: true
           });
 
           data.req_body_other = JSON.stringify(req_body_other);
@@ -452,9 +488,9 @@ class interfaceColController extends baseController {
           yapi.commons.saveLog({
             content: `<a href="/user/profile/${this.getUid()}">${username}</a> 在接口集 <a href="/project/${
               params.project_id
-            }/interface/col/${params.col_id}">${col.name}</a> 下导入了测试用例 <a href="/project/${
+              }/interface/col/${params.col_id}">${col.name}</a> 下导入了测试用例 <a href="/project/${
               params.project_id
-            }/interface/case/${caseResultData._id}">${data.casename}</a>`,
+              }/interface/case/${caseResultData._id}">${data.casename}</a>`,
             type: 'project',
             uid: this.getUid(),
             username: username,
@@ -577,9 +613,9 @@ class interfaceColController extends baseController {
             yapi.commons.saveLog({
               content: `<a href="/user/profile/${this.getUid()}">${username}</a> 在接口集 <a href="/project/${
                 params.project_id
-              }/interface/col/${params.col_id}">${col.name}</a> 下导入了测试用例 <a href="/project/${
+                }/interface/col/${params.col_id}">${col.name}</a> 下导入了测试用例 <a href="/project/${
                 params.project_id
-              }/interface/case/${caseResultData._id}">${data.casename}</a>`,
+                }/interface/case/${caseResultData._id}">${data.casename}</a>`,
               type: 'project',
               uid: this.getUid(),
               username: username,
@@ -587,7 +623,7 @@ class interfaceColController extends baseController {
             });
           });
         }
-        
+
       }
 
       this.projectModel.up(params.project_id, { up_time: new Date().getTime() }).then();
@@ -600,17 +636,17 @@ class interfaceColController extends baseController {
 
   handleJsonString(obj) {
     if (obj && obj.type && obj.type === 'object') {
-        this.handleJsonString(obj.properties);
-    } else { 
-        for (let prop in obj) {
-            if (obj[prop].type === 'string') {
-                obj[prop].minLength = 300;
-                obj[prop].maxLength = 600;
-            }
-            if (obj[prop].type === 'object') {
-                this.handleJsonString(obj[prop].properties);
-            }
+      this.handleJsonString(obj.properties);
+    } else {
+      for (let prop in obj) {
+        if (obj[prop].type === 'string') {
+          obj[prop].minLength = 300;
+          obj[prop].maxLength = 600;
         }
+        if (obj[prop].type === 'object') {
+          this.handleJsonString(obj[prop].properties);
+        }
+      }
     }
   }
 
@@ -671,7 +707,7 @@ class interfaceColController extends baseController {
 
       const handleReplaceStr = str => {
         if (str.indexOf('$') !== -1) {
-          str = str.replace(/\$\.([0-9]+)\./g, function(match, p1) {
+          str = str.replace(/\$\.([0-9]+)\./g, function (match, p1) {
             p1 = p1.toString();
             return `$.${newCaseList[oldCaseObj[p1]]}.` || '';
           });
@@ -765,9 +801,9 @@ class interfaceColController extends baseController {
         yapi.commons.saveLog({
           content: `<a href="/user/profile/${this.getUid()}">${username}</a> 在接口集 <a href="/project/${
             caseData.project_id
-          }/interface/col/${caseData.col_id}">${col.name}</a> 更新了测试用例 <a href="/project/${
+            }/interface/col/${caseData.col_id}">${col.name}</a> 更新了测试用例 <a href="/project/${
             caseData.project_id
-          }/interface/case/${params.id}">${params.casename || caseData.casename}</a>`,
+            }/interface/case/${params.id}">${params.casename || caseData.casename}</a>`,
           type: 'project',
           uid: this.getUid(),
           username: username,
@@ -863,7 +899,7 @@ class interfaceColController extends baseController {
       yapi.commons.saveLog({
         content: `<a href="/user/profile/${this.getUid()}">${username}</a> 更新了测试集合 <a href="/project/${
           colData.project_id
-        }/interface/col/${id}">${colData.name}</a> 的信息`,
+          }/interface/col/${id}">${colData.name}</a> 的信息`,
         type: 'project',
         uid: this.getUid(),
         username: username,
@@ -896,7 +932,7 @@ class interfaceColController extends baseController {
       params.forEach(item => {
         if (item.id) {
           this.caseModel.upCaseIndex(item.id, item.index).then(
-            res => {},
+            res => { },
             err => {
               yapi.commons.log(err.message, 'error');
             }
@@ -911,37 +947,37 @@ class interfaceColController extends baseController {
   }
 
 
-    /**
-     * 根据接口id 刷新用例
-     * @interface /col/flush
-     * @method POST
-     * @category col
-     * @foldnumber 10
-     * @param {Number}  interface_id
-     * @returns {Object}
-     * @example
-     */
-    async flush(ctx) {
-        let params = ctx.params;
-        if (!this.$tokenAuth) {
-            let auth = await this.checkAuth(params.pid, 'project', 'edit');
-            if (!auth) {
-                return (ctx.body = yapi.commons.resReturn(null, 400, '没有权限'));
-            }
-        }
-
-        try {
-            this.caseModel.flush(params.inpid,params.pid).then(
-                res => {},
-                err => {
-                    yapi.commons.log(err.message, 'error');
-                }
-            );
-            return (ctx.body = yapi.commons.resReturn('成功！'));
-        } catch (e) {
-            ctx.body = yapi.commons.resReturn(null, 400, e.message);
-        }
+  /**
+   * 根据接口id 刷新用例
+   * @interface /col/flush
+   * @method POST
+   * @category col
+   * @foldnumber 10
+   * @param {Number}  interface_id
+   * @returns {Object}
+   * @example
+   */
+  async flush(ctx) {
+    let params = ctx.params;
+    if (!this.$tokenAuth) {
+      let auth = await this.checkAuth(params.pid, 'project', 'edit');
+      if (!auth) {
+        return (ctx.body = yapi.commons.resReturn(null, 400, '没有权限'));
+      }
     }
+
+    try {
+      this.caseModel.flush(params.inpid, params.pid).then(
+        res => { },
+        err => {
+          yapi.commons.log(err.message, 'error');
+        }
+      );
+      return (ctx.body = yapi.commons.resReturn('成功！'));
+    } catch (e) {
+      ctx.body = yapi.commons.resReturn(null, 400, e.message);
+    }
+  }
 
   /**
    * 移动用例case
@@ -965,11 +1001,11 @@ class interfaceColController extends baseController {
 
 
     try {
-      this.caseModel.move(params.caseId,  params.cid).then(
-          res => {},
-          err => {
-            yapi.commons.log(err.message, 'error');
-          }
+      this.caseModel.move(params.caseId, params.cid).then(
+        res => { },
+        err => {
+          yapi.commons.log(err.message, 'error');
+        }
       );
       return (ctx.body = yapi.commons.resReturn('成功！'));
     } catch (e) {
@@ -998,7 +1034,7 @@ class interfaceColController extends baseController {
       params.forEach(item => {
         if (item.id) {
           this.colModel.upColIndex(item.id, item.index).then(
-            res => {},
+            res => { },
             err => {
               yapi.commons.log(err.message, 'error');
             }
@@ -1038,11 +1074,11 @@ class interfaceColController extends baseController {
         }
       }
 
-      let coltreenode=await this.getCol(colData.project_id,false,id);
-      let delcoltree= async coldata => {
+      let coltreenode = await this.getCol(colData.project_id, false, id);
+      let delcoltree = async coldata => {
 
-        if(coldata.children&&coldata.children.length>0){
-          coldata.children.forEach(subcol=>{
+        if (coldata.children && coldata.children.length > 0) {
+          coldata.children.forEach(subcol => {
             delcoltree(subcol)
           })
         }
@@ -1051,12 +1087,12 @@ class interfaceColController extends baseController {
         await this.caseModel.delByCol(coldata._id);
         return result
       }
-      let r=delcoltree(coltreenode);
+      let r = delcoltree(coltreenode);
       let username = this.getUsername();
       yapi.commons.saveLog({
         content: `<a href="/user/profile/${this.getUid()}">${username}</a> 删除了接口集 ${
           colData.name
-        } 及子接口集以及其下面的接口`,
+          } 及子接口集以及其下面的接口`,
         type: 'project',
         uid: this.getUid(),
         username: username,
@@ -1095,7 +1131,7 @@ class interfaceColController extends baseController {
         yapi.commons.saveLog({
           content: `<a href="/user/profile/${this.getUid()}">${username}</a> 删除了接口集 <a href="/project/${
             caseData.project_id
-          }/interface/col/${caseData.col_id}">${col.name}</a> 下的接口 ${caseData.casename}`,
+            }/interface/col/${caseData.col_id}">${col.name}</a> 下的接口 ${caseData.casename}`,
           type: 'project',
           uid: this.getUid(),
           username: username,
@@ -1118,7 +1154,7 @@ class interfaceColController extends baseController {
   // 数组去重
   unique(array, compare) {
     let hash = {};
-    let arr = array.reduce(function(item, next) {
+    let arr = array.reduce(function (item, next) {
       hash[next[compare]] ? '' : (hash[next[compare]] = true && item.push(next));
       // console.log('item',item.project_id)
       return item;

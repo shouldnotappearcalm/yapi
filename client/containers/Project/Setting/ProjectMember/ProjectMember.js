@@ -246,7 +246,7 @@ class ProjectMember extends Component {
             <div className="m-user">
               <img src={'/api/user/avatar?uid=' + record.uid} className="m-user-img" />
               <p className="m-user-name">{text}</p>
-              <Tooltip placement="top" title="邮件通知">
+              <Tooltip placement="top" title="通知">
                 <span>
                   <Switch
                     size="small"

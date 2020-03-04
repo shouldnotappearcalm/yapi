@@ -528,6 +528,11 @@ let routerConfig = {
       action: 'getCaseEnvList',
       path: 'case_env_list',
       method: 'get'
+    },
+    {
+      action: 'replaceVariables',
+      path: 'variables',
+      method: 'post'
     }
   ],
   test: [

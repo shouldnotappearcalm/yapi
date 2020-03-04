@@ -5,7 +5,7 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import {findMeInTree} from '../../../../common.js';
 //import constants from '../../../../constants/variable.js'
-import {Tooltip, Icon, Input, Button, Row, Col, Spin, Modal, message, Select, Switch, Checkbox, InputNumber} from 'antd';
+import {Tooltip, Icon, Input, Button, Row, Col, Spin, Modal, message, Select, Switch, Checkbox, InputNumber, Popconfirm} from 'antd';
 import {
   fetchInterfaceColList,
   fetchCaseList,
@@ -136,7 +136,10 @@ class InterfaceColContent extends Component {
           enable: false,
           content: ''
         }
-      }
+      },
+      // 全局替换变量相关
+      originValue: '',
+      targetValue: ''
     };
     this.onRow = this.onRow.bind(this);
     this.onMoveRow = this.onMoveRow.bind(this);
@@ -967,6 +970,26 @@ class InterfaceColContent extends Component {
     return `用例共 (${totalCount}) 个,其中：["Pass: ${passCount} 个 ", "Loading: ${loadingCount} 个 ", "请求异常: ${errorCount} 个", "验证失败: ${failCount} 个"]`
   };
 
+  originValueChange = e => {
+    this.setState({ 
+      originValue: e.target.value
+    })
+  };
+  
+  targetValueChange = e => {
+    this.setState({
+      targetValue: e.target.value
+    })
+  };
+
+  saveGlobalReplace = () => {
+    axios.post('/api/col/variables', {
+      colId: this.props.currColId,
+      originValue: this.state.originValue,
+      targetValue: this.state.targetValue
+    })
+  }
+
 
   render() {
     const currProjectId = this.props.currProject._id;
@@ -1443,6 +1466,30 @@ class InterfaceColContent extends Component {
             )}
           </Col>
         </Row>
+
+        <Row>
+          <Col span={2}>
+            <h2>变量全局替换</h2>
+          </Col>
+          <Col span={6}>
+            <Input placeholder="原值" defaultValue='' onChange={this.originValueChange} />
+          </Col>
+          <Col span={6}>
+            <Input placeholder="目标值" defaultValue='' onChange={this.targetValueChange} />
+          </Col>
+          <Col span={1}></Col>
+          <Col span={3}>
+            <Popconfirm
+              title="确认替换？"
+              onConfirm={this.saveGlobalReplace}
+              okText="确认"
+              cancelText="取消"
+            >
+              <Button type="primary">替换</Button>
+            </Popconfirm>
+          </Col>
+        </Row>
+        
         <Row>
           <Col span={10}>
             <div className="component-label-wrapper">
@@ -1453,7 +1500,6 @@ class InterfaceColContent extends Component {
             </div>
           </Col>
         </Row>
-        
 
         <div className="component-label-wrapper">
           <Label onChange={val => this.handleChangeInterfaceCol(val, col_name)} desc={col_desc} />

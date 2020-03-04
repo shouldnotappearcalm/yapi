@@ -35,6 +35,7 @@
   * [第三步，运行自动化测试](case.md#第三步，运行自动化测试)
   * [断言脚本公共变量](case.md#断言脚本公共变量)
   * [服务端自动化测试](case.md#服务端自动化测试)
+  * [断言执行 SQL](runSQL.md)
 * [数据导入](data.md)
   * [Postman 数据导入](data.md#Postman 数据导入)
   * [HAR 数据导入](data.md#HAR 数据导入)

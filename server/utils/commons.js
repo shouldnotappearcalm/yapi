@@ -27,6 +27,13 @@ const defaultUtil = require('util')
 
 const sqlRunnerHost = yapi.WEBCONFIG.sqlRunnerHost;
 
+Mock.Random.extend({
+  // 扩展支持正则表达式，默认情况下使用 Mock.mock("regexpStr") 会出现不能识别正则表达式问题
+  regexp: function(regexpStr) {
+      return Mock.mock(regexpStr);
+  }
+})
+
 jsf.extend('mock', function () {
   return {
     mock: function (xx) {
