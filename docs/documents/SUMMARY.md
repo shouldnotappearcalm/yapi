@@ -20,6 +20,7 @@
 * [接口操作](api.md)
   * [接口设置](api.md#接口配置)
   * [接口运行](api.md#接口运行)
+  * [接口变动CC通知](notice-cc.md#接口变动通知)
 * [数据Mock](mock.md)
   * [方式1. mockjs](mock.md#方式1. mockjs)
   * [方式2. json-schema](mock.md#方式2. json-schema)

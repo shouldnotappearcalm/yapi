@@ -987,7 +987,11 @@ class InterfaceColContent extends Component {
       colId: this.props.currColId,
       originValue: this.state.originValue,
       targetValue: this.state.targetValue
-    })
+    }).then(res => {
+      message.success("替换成功");
+    }).catch(err => {
+      message.error("替换失败");
+    });
   }
 
 

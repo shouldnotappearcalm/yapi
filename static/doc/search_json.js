@@ -441,6 +441,40 @@ window.ydoc_plugin_search_json = {
       ]
     },
     {
+      "title": "接口变动时发送 CC 消息",
+      "content": "",
+      "url": "/documents/notice-cc.html",
+      "children": [
+        {
+          "title": "新建项目并添加成员",
+          "url": "/documents/notice-cc.html#新建项目并添加成员",
+          "content": "新建项目并添加成员YAPI 中有分组和项目的概念，同时有分组成员和项目成员，目前接口变动发送 CC 消息只是针对项目成员 并非分组成员。可以看到项目的成员管理中，可以看到一个通知开关，默认打开，打开后你就能在接口变动时收到邮件和 CC 通知了。如果您不关心接口变动的通知，请及时在 YAPI 中对应项目->成员管理->关闭对应自己帐号的通知目前还存在的问题： 大连无法收到 CC 通知。\n"
+        },
+        {
+          "title": "接口变动时",
+          "url": "/documents/notice-cc.html#接口变动时",
+          "content": "接口变动时当 YAPI 中的接口变动时，你就能收到如下的 CC 通知，点击详情即可跳转到 YAPI点击详情之后来到如下页面点击改动详情就能看到具体的字段变动了，可以看到这里我们是修改了字段的名字"
+        }
+      ]
+    },
+    {
+      "title": "接口变动时发送 CC 消息",
+      "content": "",
+      "url": "/documents/notice-cc.html",
+      "children": [
+        {
+          "title": "新建项目并添加成员",
+          "url": "/documents/notice-cc.html#新建项目并添加成员",
+          "content": "新建项目并添加成员YAPI 中有分组和项目的概念，同时有分组成员和项目成员，目前接口变动发送 CC 消息只是针对项目成员 并非分组成员。可以看到项目的成员管理中，可以看到一个通知开关，默认打开，打开后你就能在接口变动时收到邮件和 CC 通知了。如果您不关心接口变动的通知，请及时在 YAPI 中对应项目->成员管理->关闭对应自己帐号的通知目前还存在的问题： 大连无法收到 CC 通知。\n"
+        },
+        {
+          "title": "接口变动时",
+          "url": "/documents/notice-cc.html#接口变动时",
+          "content": "接口变动时当 YAPI 中的接口变动时，你就能收到如下的 CC 通知，点击详情即可跳转到 YAPI点击详情之后来到如下页面点击改动详情就能看到具体的字段变动了，可以看到这里我们是修改了字段的名字"
+        }
+      ]
+    },
+    {
       "title": "Mock介绍",
       "content": " YApi的 Mock 功能可以根据用户的输入接口信息如协议、URL、接口名、请求头、请求参数、返回数据（[返回数据](#mock)）生成 Mock 接口，这些接口会自动生成模拟数据，创建者可以自由构造需要的数据。 mock地址解析：YApi平台网址 + mock + 您的项目id +\b 接口实际请求path假设你 YApi 的部署地址为：http://yapi.xxx.com 然后用这个地址作为示例mockd 地址： http://yapi.xxx.com/mock/29/api/hackathon/login注：项目 id 可以在项目设置里查看到\n",
       "url": "/documents/mock.html",
