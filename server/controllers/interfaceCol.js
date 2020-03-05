@@ -185,6 +185,16 @@ class interfaceColController extends baseController {
     });
     let caseList = await yapi.commons.getCaseList(params.colId);
 
+    // 处理 originValue 中的特殊字符
+    let specialCharArr = ['$', '(', ')', '*', '+', '.', '[', '?', '\\', '^', '{', '|'];
+    let originValueArr = params.originValue.split('');
+    for (let i = 0; i < originValueArr.length; i++) {
+      if (specialCharArr.indexOf(originValueArr[i]) > -1) {
+        originValueArr[i] = '\\' + originValueArr[i];
+      }
+    }
+    params.originValue = originValueArr.join('');
+
     let regExp = new RegExp(params.originValue, 'g');
     // await Promise.all(caseList.data.map(caseItem => {
     //   if (caseItem.req_body_other) {
