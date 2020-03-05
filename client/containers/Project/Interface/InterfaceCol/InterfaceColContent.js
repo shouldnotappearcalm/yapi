@@ -988,7 +988,7 @@ class InterfaceColContent extends Component {
       originValue: this.state.originValue,
       targetValue: this.state.targetValue
     }).then(res => {
-      message.success("替换成功");
+      message.success("替换成功，请刷新页面");
     }).catch(err => {
       message.error("替换失败");
     });

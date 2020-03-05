@@ -196,23 +196,6 @@ class interfaceColController extends baseController {
     params.originValue = originValueArr.join('');
 
     let regExp = new RegExp(params.originValue, 'g');
-    // await Promise.all(caseList.data.map(caseItem => {
-    //   if (caseItem.req_body_other) {
-    //     caseItem.req_body_other = caseItem.req_body_other.replace(regExp, params.targetValue);
-    //   }
-    //   let props = ['req_params', 'req_headers', 'req_query', 'req_body_form'];
-    //   props.forEach(prop => {
-    //     caseItem[prop] = Array.from(caseItem[prop]);
-    //     caseItem[prop].forEach(propValues => {
-    //       if (propValues.value == params.originValue) {
-    //         propValues.value = params.targetValue;
-    //       }
-    //     })
-    //   });
-
-    //   this.caseModel.up(caseItem._id, caseItem);
-    // }));
-    //await Promise.all();
     caseList.data.forEach(async caseItem => {
       if (caseItem.req_body_other) {
         caseItem.req_body_other = caseItem.req_body_other.replace(regExp, params.targetValue);
