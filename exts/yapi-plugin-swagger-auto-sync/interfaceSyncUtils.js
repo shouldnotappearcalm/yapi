@@ -94,7 +94,7 @@ class syncUtils {
 
         //更新之前判断本次swagger json数据是否跟上次的相同,相同则不更新
         if (newSwaggerJsonData && oldSyncJob.old_swagger_content && oldSyncJob.old_swagger_content == md5(newSwaggerJsonData)) {
-            //记录日志
+            // 记录日志
             this.saveSyncLog(0, syncMode, "接口无更新", uid, projectId);
             oldSyncJob.last_sync_time = yapi.commons.time();
             await this.syncModel.upById(projectId, oldSyncJob);
@@ -144,13 +144,14 @@ class syncUtils {
      * @param {*} projectId 
      */
     saveSyncLog(errcode, syncMode, moremsg, uid, projectId) {
-        yapi.commons.saveLog({
-            content: '自动同步接口状态:' + (errcode == 0 ? '成功,' : '失败,') + "合并模式:" + this.getSyncModeName(syncMode) + ",更多信息:" + moremsg,
-            type: 'project',
-            uid: uid,
-            username: "自动同步用户",
-            typeid: projectId
-        });
+        // 暂时不再记录同步接口日志
+        // yapi.commons.saveLog({
+        //     content: '自动同步接口状态:' + (errcode == 0 ? '成功,' : '失败,') + "合并模式:" + this.getSyncModeName(syncMode) + ",更多信息:" + moremsg,
+        //     type: 'project',
+        //     uid: uid,
+        //     username: "自动同步用户",
+        //     typeid: projectId
+        // });
     }
 
     /**
