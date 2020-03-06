@@ -42,6 +42,14 @@ var hooks = {
     listener: []
   },
   /**
+   * 接口变动时触发
+   * @param id 接口id
+   */
+  interface_update_diff: {
+    type: 'multi',
+    listener: []
+  },
+  /**
    * 客户端获取接口数据列表
    * @param list 返回接口的数据列表
    */

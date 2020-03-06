@@ -21,13 +21,13 @@ module.exports = {
     name: 'wiki'
   }, {
     name: 'swagger-auto-sync'
-  }  //{
+  } //{
   //  name: 'test'
   //}, {
   //  name: 'test2'
   //}
-  // ,{
+  //{
   //   name: 'test3'
-  // }
+   //}
 ]
 }

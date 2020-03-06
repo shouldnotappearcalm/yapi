@@ -784,6 +784,7 @@ class interfaceController extends baseController {
         typeid: cate.project_id,
         data: logData
       });
+      yapi.emitHook('interface_update_diff', id).then();
     });
 
     this.projectModel.up(interfaceData.project_id, { up_time: new Date().getTime() }).then();
