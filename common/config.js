@@ -23,7 +23,7 @@ module.exports = {
     name: 'swagger-auto-sync'
   } //,{
     //name: 'test2'
-  //}//, {
+ // }//, {
   //  name: 'test2'
   //}
   //{
