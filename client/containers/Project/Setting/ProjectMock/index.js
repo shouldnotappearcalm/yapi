@@ -100,7 +100,7 @@ export default class ProjectMock extends Component {
                 是否开启&nbsp;<a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href="http://172.25.17.6:9999/documents/project.html#%E5%85%A8%E5%B1%80mock"
+                  href="http://172.16.16.66:9999/documents/project.html#%E5%85%A8%E5%B1%80mock"
                 >
                   <Tooltip title="点击查看文档">
                     <Icon type="question-circle-o" />

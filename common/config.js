@@ -21,9 +21,7 @@ module.exports = {
     name: 'wiki'
   }, {
     name: 'swagger-auto-sync'
-  } //,{
-    //name: 'test2'
- // }//, {
+  } //, {
   //  name: 'test2'
   //}
   //{

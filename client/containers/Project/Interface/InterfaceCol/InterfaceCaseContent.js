@@ -93,6 +93,27 @@ export default class InterfaceCaseContent extends Component {
     return currColId;
   }
 
+  recurFindCol(colList, currCaseId) {
+    let currColId = 0;
+    for (let i = 0; i < colList.length; i++) {
+      let col = colList[i];
+      col.caseList&&col.caseList.forEach(caseItem => {
+        if (+caseItem._id === +currCaseId) {
+          currColId = col._id;
+          return currColId;
+        }
+      });
+      // 递归遍历子目录
+      if (col.children) {
+        let calColId = this.recurFindCol(col.children, currCaseId);
+        if (calColId && calColId != 0) {
+          return calColId;
+        }
+      }
+    }
+    return currColId;
+  }
+
   async componentWillMount() {
     let cancelSource = axios.CancelToken.source();
     this.cancelSourceSet.add(cancelSource);
@@ -106,7 +127,7 @@ export default class InterfaceCaseContent extends Component {
     const params = this.props.match.params;
     const { actionId } = params;
     currCaseId = +actionId || +currCaseId || result.payload.data.data[0].caseList[0]._id;
-    let currColId = this.getColId(result.payload.data.data, currCaseId);
+    let currColId = this.recurFindCol(result.payload.data.data, currCaseId);
     this.props.history.push('/project/' + params.id + '/interface/case/' + currCaseId);
 
     cancelSource = axios.CancelToken.source();
@@ -142,7 +163,7 @@ export default class InterfaceCaseContent extends Component {
     const oldCaseId = this.props.match.params.actionId;
     const newCaseId = nextProps.match.params.actionId;
     const { interfaceColList } = nextProps;
-    let currColId = this.getColId(interfaceColList, newCaseId);
+    let currColId = this.recurFindCol(interfaceColList, newCaseId);
     if (oldCaseId !== newCaseId) {
 
       this.cancelRequestBefore();

@@ -51,6 +51,10 @@ export const InsertCodeMap = [
     title: '执行SQL'
   },
   {
+    code: "let mockData = mockUtil.mock({'string|+3': 'string','number|+3': 1,'name': '@cname','province': '@province'});\n// 更多请参考 http://mockjs.com/examples.html ,将 Mock.mock 的 Mock 替换为 mockUtil 即可\nlog(JSON.stringify(mockData));",
+    title: '使用断言'
+  },
+  {
     code: 'globalObj.',
     title: '获取当前环境global变量'
   },

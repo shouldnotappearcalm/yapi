@@ -1225,7 +1225,7 @@ class InterfaceEditForm extends Component {
                         <span
                           className="href"
                           onClick={() =>
-                            window.open('http://172.25.17.6:9999/documents/mock.html', '_blank')
+                            window.open('http://172.16.16.66:9999/documents/mock.html', '_blank')
                           }
                         >
                           查看文档

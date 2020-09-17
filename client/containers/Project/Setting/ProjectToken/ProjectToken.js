@@ -76,7 +76,7 @@ class ProjectToken extends Component {
         </div>
         <br />
         <h2  className="token-title">open接口：</h2>
-        <p><a target="_blank" rel="noopener noreferrer"   href="http://172.25.17.6:9999/openapi.html">详细接口文档</a></p>
+        <p><a target="_blank" rel="noopener noreferrer"   href="http://172.16.16.66:9999/openapi.html">详细接口文档</a></p>
         <div>
           <ul className="open-api">
             <li>/api/open/run_auto_test [运行自动化测试]</li>

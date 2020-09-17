@@ -110,7 +110,7 @@ assert.equal(body.id, cId)
 
 > 断言中 `assert` 的更多用法请参考 [文档](http://nodejs.cn/api/assert.html)
 
-> 更多默认对象使用请参考 [文档](http://172.25.17.6:9999/documents/case.html#%e6%96%ad%e8%a8%80%e8%84%9a%e6%9c%ac%e5%85%ac%e5%85%b1%e5%8f%98%e9%87%8f)，其中重点使用参数
+> 更多默认对象使用请参考 [文档](http://172.16.16.66:9999/documents/case.html#%e6%96%ad%e8%a8%80%e8%84%9a%e6%9c%ac%e5%85%ac%e5%85%b1%e5%8f%98%e9%87%8f)，其中重点使用参数
 >
 >- `params`： `http request params`, 合并了 `query` 和 `body`, `path` 中的变量也在其中
 >- `body`： 返回 `response body`

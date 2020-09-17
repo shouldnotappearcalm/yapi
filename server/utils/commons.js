@@ -24,6 +24,7 @@ const jsf = require('json-schema-faker');
 const { schemaValidator } = require('../../common/utils');
 const https = require('https');
 const defaultUtil = require('util')
+const mockUtil = require('mockjs')
 
 const sqlRunnerHost = yapi.WEBCONFIG.sqlRunnerHost;
 
@@ -678,6 +679,7 @@ exports.runCaseScript = async function runCaseScript(params, colId, interfaceId)
     records: params.records,
     params: params.params,
     defaultUtil: defaultUtil,
+    mockUtil: mockUtil,
     globalObj: curGlobalObj,
     utils: Object.freeze({
       _: _,
